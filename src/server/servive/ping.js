@@ -4,11 +4,10 @@ const {getDeviceInfo, getLocalDeviceIp} = require('./../utils')
 
 function pingDev(req, res) {
     let devInfo = getDeviceInfo(req)
-    console.log(devInfo)
     if (devInfo.setCookie){
         res.cookie(devInfo.name, devInfo.deviceId)
     }
-    console.log('devs:', Devs)
+    console.log('devs:', JSON.stringify(Devs))
     res.send(Devs.checkDev(devInfo.deviceId, devInfo.show, devInfo.cate))
 
 }

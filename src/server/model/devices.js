@@ -1,4 +1,6 @@
+const {log} = require("builder-util");
 const {newDevice} = require('./device')
+const {syncTypeEum}  = require('./syncInfo')
 
 
 class Devices {
@@ -6,6 +8,50 @@ class Devices {
         this.dev = null
         this.devs = null
         this.pingSecond = null
+    }
+
+    syncEvent(devId, syncContent){
+        let fromDev = this.getDev(devId)
+        switch (syncContent.syncType) {
+            case syncTypeEum.file:{
+                let upFile = fromDev.uploadFiles[syncContent.fileHash]
+                syncContent['show'] = upFile.show
+                syncContent['fileSize'] = upFile.fileSize
+                break
+            }
+        }
+        let newDevs = []
+        log.info(`fromdev:${fromDev}, content: ${syncContent}`)
+        this.devs.forEach((val)=>{
+            if(syncContent.toDevId === val.devId){
+                val.syncDevice(fromDev, syncContent)
+            }
+            newDevs.push(val)
+        })
+        this.devs = newDevs
+    }
+
+    getDev(devId){
+        let focusDev = null
+        this.devs.forEach((val)=>{
+            if( val.devId === devId){
+                focusDev = val
+
+            }
+        })
+        return focusDev
+    }
+
+    uploadEvent(devId, filename, fileHash, fileSize){
+        let newDevs = []
+        this.devs.forEach((val) => {
+            if (devId === val.devId) {
+                val.addFile(filename, fileHash, fileSize)
+            }
+            newDevs.push(val)
+
+        })
+        this.devs = newDevs
     }
 
     checkDev(devId, show, cate) {

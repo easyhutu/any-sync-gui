@@ -24,11 +24,11 @@
               <span style="float: right; display: inline">
                 <b-badge variant="light">
 
-                <span v-show="devOnline" style="color: cadetblue">
+                <span v-show="ws" style="color: cadetblue">
                    <b-icon variant="success" icon="wifi" font-scale="1.5"></b-icon>
                 已连接
                 </span>
-                  <span v-show="!devOnline" style="color: grey">
+                  <span v-show="!ws" style="color: grey">
                    <b-icon icon="wifi-off" font-scale="1.5"></b-icon>
                 中断
                 </span>
@@ -56,6 +56,7 @@
         <b-col>
           <b-badge pill variant="warning">同步文本</b-badge>
           <b-form-textarea
+              v-show="choiceDev"
               v-model="syncText"
               placeholder="输入文本..."
               rows="3"
@@ -66,22 +67,24 @@
 
       <b-row class="sync-show-row" style="text-align: left">
         <b-col>
-          <b-card>
+          <b-card style="margin-top: 8px" v-for="(syncCard, idx) in dev.syncText" :key="idx">
             <b-card-sub-title>
               <b-icon variant="primary" icon="messenger"></b-icon>
               &nbsp;
-              <span>shebei</span>
-              <span style="float: right; font-size: xx-small">2023-02-23 12:22:22</span>
+              <span>{{ syncCard.fromShow }}</span>
+              <span style="float: right; font-size: xx-small">{{ formatTime(syncCard.syncTime) }}</span>
             </b-card-sub-title>
-            <b-card-text class="user-select-all">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</b-card-text>
+            <b-card-text style="margin-top: 8px" class="user-select-all">{{ syncCard.syncDetails[0].content }}
+            </b-card-text>
           </b-card>
+
         </b-col>
       </b-row>
 
       <b-row class="sync-input-row" style="text-align: left">
         <b-col>
           <b-badge pill variant="warning">同步文件</b-badge>
-          <uploader :options="uploadOptions" class="sync-uploader">
+          <uploader v-show="choiceDev" :options="uploadOptions" @file-success="onFileUploadSuccess" class="sync-uploader">
             <uploader-unsupport></uploader-unsupport>
             <uploader-drop>
               <p>拖拽文件上传或</p>
@@ -104,27 +107,27 @@
       </b-row>
 
       <b-row class="sync-show-row" style="text-align: left">
-        <b-col>
-          <b-card>
+        <b-col style="margin-bottom: 12px">
+          <b-card v-for="(syncCard, idx) in dev.syncFile" :key="idx">
             <b-card-sub-title>
               <b-icon variant="primary" icon="messenger"></b-icon>
               &nbsp;
-              <span>shebei</span>
-              <span style="float: right; font-size: xx-small">2023-02-23 12:22:22</span>
+              <span>{{syncCard.fromShow}}</span>
+              <span style="float: right; font-size: xx-small">{{formatTime(syncCard.syncTime)}}</span>
             </b-card-sub-title>
             <b-card-text>
               <b-list-group style="margin-top: 10px">
-                <b-list-group-item class="d-flex justify-content-between align-items-center">
+                <b-list-group-item v-for="(syncDetail, didx) in syncCard.syncDetails" :key="didx" class="d-flex justify-content-between align-items-center">
                   <span>
                     <b-icon icon="image-fill"></b-icon>
                     &nbsp;
-                    <a href="#">ssfldf.jpg</a>
+                    <a download :href="genUrl('/'+syncDetail.fileHash)" >{{ syncDetail.show }}</a>
                     &nbsp;
-                    <b-badge variant="primary" pill>128k</b-badge>
+                    <b-badge variant="primary" pill>{{ syncDetail.fileSize }}</b-badge>
                   </span>
 
 
-                  <b-badge pill href="#" variant="info">查看</b-badge>
+                  <b-badge pill @click="clickPreview(syncDetail.fileHash, syncDetail.fileExt)" href="#" variant="info">查看</b-badge>
                 </b-list-group-item>
               </b-list-group>
             </b-card-text>
@@ -132,6 +135,15 @@
           </b-card>
         </b-col>
       </b-row>
+
+      <b-modal scrollable size="lg" hide-footer v-model="showPreviewModal">
+        <div class="d-block text-center">
+          <b-img style="width: 100%;height: 100%" v-show="showPreviewCd()==='img'" thumbnail fluid :src="previewDetail.url" :alt="previewDetail.ext"></b-img>
+          <video style="width: 100%;height: 100%" controls autoplay :src="previewDetail.url" v-show="showPreviewCd()==='video'"></video>
+          <a  v-show="showPreviewCd()==='other'" :href="previewDetail.url" download>文件类型不支持预览，点击下载</a>
+        </div>
+
+      </b-modal>
     </b-container>
 
   </div>
@@ -152,29 +164,92 @@ export default {
       dev: {},
       devs: [],
       choiceDev: null,
-      devOnline: true,
       syncText: '',
       uploadOptions: {
-        target: 'http://localhost:8081/upload',
-        testChunks: false
+        target: `http://${window.location.hostname}:8081/upload`,
+        testChunks: false,
+        chunkSize: 1024*1024*1025
       },
       uploadAttrs: {
         accept: 'image/*'
       },
       ws: null,
+      wsGroupId: 1,
       wsMsgType: {
         ping: 'ping',
         pingGroup: 'pingGroup',
         sync: 'sync',
       },
+      showPreviewModal: false,
+      previewDetail:{url:null, ext: ''},
+
       isMobile: navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
     }
   },
   mounted() {
     this.getLocalInfo()
     this.pingDevice()
+    setInterval(() => {
+      if (this.ws) {
+        this.ws.send(JSON.stringify({msgEvent: this.wsMsgType.ping}))
+      }
+    }, 1000 * 60 * 5)
+  },
+  watch: {
+    syncText() {
+      if (this.syncText && this.choiceDev) {
+        this.ws.send(JSON.stringify(
+            {
+              msgEvent: this.wsMsgType.sync,
+              content: {
+                syncType: 'text',
+                content: this.syncText,
+                toDevId: this.choiceDev
+              }
+            }
+        ))
+      }
+    },
   },
   methods: {
+    dlEvent(url){
+      console.log('url', url)
+      let xhr = new XMLHttpRequest()
+      xhr.open('GET', url)
+      xhr.send()
+    },
+    showPreviewCd(){
+      if(['.jpg', '.png', '.jpeg', '.webp'].indexOf(this.previewDetail.ext.toLowerCase()) !== -1){
+        return 'img'
+      }
+      if(['.mp4', '.av', '.mov'].indexOf(this.previewDetail.ext.toLowerCase()) !== -1){
+        return 'video'
+      }
+      return 'other';
+
+    },
+    clickPreview(fileHash, fileExt){
+      this.showPreviewModal = true
+      this.previewDetail.ext = fileExt
+      this.previewDetail.url = this.genUrl('/'+fileHash)
+    },
+    onFileUploadSuccess(rootFile, file, response){
+      console.log('upload success', response)
+      this.ws.send(JSON.stringify(
+          {
+            msgEvent: this.wsMsgType.sync,
+            content: {
+              syncType: 'file',
+              fileHash: response,
+              toDevId: this.choiceDev
+            }
+          }
+      ))
+    },
+    formatTime(timestamp) {
+      let date = new Date(timestamp)
+      return date.toTimeString()
+    },
     clickChoiceDev: function (devId) {
       this.choiceDev = devId
       console.log(devId)
@@ -189,7 +264,7 @@ export default {
       }
     },
     genUrl: function (path) {
-      return `http://${window.location.hostname}:${this.listenPort}`+path
+      return `http://${window.location.hostname}:${this.listenPort}` + path
     },
     getLocalInfo: function () {
       this.$http.get(this.genUrl('/localInfo')).then(resp => {
@@ -200,20 +275,30 @@ export default {
     pingDevice: function () {
       this.$http.get(this.genUrl('/ping')).then(resp => {
         console.log(resp.data)
-        this.dev = resp.data.dev
-        this.devs = resp.data.devs
+
         this.initWsEvent()
       })
     },
     initWsEvent: function () {
-      this.ws = new WebSocket(`ws://${window.location.hostname}:${this.listenPort}/ws/sync`)
+      this.ws = new WebSocket(`ws://${window.location.hostname}:${this.listenPort}/ws/sync/${this.wsGroupId}`)
       this.ws.onopen = () => {
         console.log('ws连接状态：' + this.ws.readyState);
         //连接成功 ping group
-        this.ws.send(JSON.stringify({type: this.wsMsgType.pingGroup}))
+        this.ws.send(JSON.stringify({msgEvent: this.wsMsgType.pingGroup}))
       }
       this.ws.onmessage = (msg) => {
-        console.log('接收到来自服务器的消息：', Date.now(), msg);
+        console.log('接收到来自服务器的消息：', Date.now(), msg.data);
+        let msgObj = JSON.parse(msg.data)
+        switch (msgObj.msgEvent) {
+          case this.wsMsgType.ping: {
+            this.ws.send(JSON.stringify({msgEvent: this.wsMsgType.ping}))
+            break
+          }
+          case this.wsMsgType.sync: {
+            this.devs = msgObj.devs.devs
+            this.dev = msgObj.devs.dev
+          }
+        }
       }
       this.ws.onerror = (errmsg) => {
         console.log("ws err", errmsg)

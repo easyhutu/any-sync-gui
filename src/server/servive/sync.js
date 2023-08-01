@@ -7,46 +7,50 @@ class SyncWsManager {
         this.server = server
 
     }
+
     /**
      * 接受client端连接
      */
     listenClientConnect() {
-
-        this.server.ws('/ws/sync/:groupId', (ws, req)=> {
+        this.server.ws('/ws/sync/:groupId', (ws, req) => {
             let groupId = req.params.groupId
             let devInfo = getDeviceInfo(req)
-            if (!groupId || !devInfo){
+            if (!groupId || !devInfo) {
                 ws.send('need group id, dev id')
                 ws.close()
                 return
             }
 
             console.log(`group[${groupId}] client[${devInfo.deviceId}] connect to server successful!`);
+            if (!this.clients[groupId]){
+                this.clients[groupId] = {}
+            }
             this.clients[groupId][devInfo.deviceId] = ws;
-            ws.on('message', (msg)=> {
+            ws.on('message',  (msg) => {
                 console.log("receive client msg :", msg);
-                this.receiveMsg(groupId, devInfo.deviceId, msg);
+                this.receiveMsg(groupId, devInfo, msg);
             });
-            ws.on("close", ()=>{
+            ws.on("close",  (msg) => {
                 console.log("client is closed");
                 delete this.clients[groupId][devInfo.deviceId]
 
             });
         });
     }
+
     /**
      * 发送command到client端
      * @param groupId
      * @param devId
      * @param msg
      */
-    sendMsg(groupId, devId, msg){
+    sendMsg(groupId, devId, msg) {
         console.log(`send[${devId}] msg:${JSON.stringify(msg)}`)
         this.clients[groupId][devId].send(JSON.stringify(msg))
     }
 
-    sendGroupMsg(groupId, msg){
-        console.log(`send group[${groupId}] msg:${msg}`)
+    sendGroupMsg(groupId, msg) {
+        console.log(`send group[${groupId}] msg:${JSON.stringify(msg)}`)
         Object.values(this.clients[groupId]).forEach(ws => {
             ws.send(JSON.stringify(msg))
         })
@@ -55,12 +59,36 @@ class SyncWsManager {
     /**
      * 接收client的command请求
      * @param groupId
-     * @param devId
+     * @param devInfo
      * @param msg
      */
-    receiveMsg(groupId, devId, msg){
-        console.log(`receive[${devId}] msg:${msg}`)
-        this.sendMsg(groupId, devId, Devs)
+    receiveMsg(groupId, devInfo, msg) {
+        let MsgType = {
+            ping: 'ping',
+            pingGroup: 'pingGroup',
+            sync: 'sync',
+        }
+        console.log(`receive[${devInfo.deviceId}] msg:${msg}`)
+        let msgObj = JSON.parse(msg)
+        let msgEvent = msgObj.msgEvent
+        let content = msgObj.content //content:{toDevId, syncType, content, fileHash}
+
+        switch (msgEvent) {
+            case MsgType.ping:{
+                let devs = Devs.checkDev(devInfo.deviceId, devInfo.show, devInfo.cate)
+                this.sendMsg(groupId, devInfo.deviceId, {msgEvent: MsgType.sync, devs})
+                break
+            }
+            case MsgType.pingGroup:{
+                this.sendGroupMsg(groupId, {msgEvent: MsgType.ping})
+                break
+            }
+            case MsgType.sync:{
+                Devs.syncEvent(devInfo.deviceId,content)
+                this.sendMsg(groupId, content.toDevId, {msgEvent: MsgType.ping})
+                break
+            }
+        }
     }
 
 
