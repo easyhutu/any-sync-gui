@@ -1,6 +1,7 @@
 {
   "name": "any_sync",
   "version": "1.0.0",
+  "productName": "Lan同步",
   "description": "",
   "main": "main.js",
   "scripts": {

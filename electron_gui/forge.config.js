@@ -3,7 +3,8 @@ module.exports = {
     asar: true,
     extraResource:[
         'dist'
-    ]
+    ],
+    icon: './public/icon'
   },
   rebuildConfig: {},
   makers: [
