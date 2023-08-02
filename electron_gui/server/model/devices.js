@@ -53,6 +53,16 @@ class Devices {
         this.devs = newDevs
     }
 
+    delDev(devId){
+        let newDevs = []
+        this.devs.forEach((val) => {
+            if (devId !== val.devId) {
+                newDevs.push(val)
+            }
+        })
+        this.devs = newDevs
+    }
+
     checkDev(devId, show, cate) {
         let isExist = false
         let newDevs = []
