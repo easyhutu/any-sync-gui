@@ -1,6 +1,7 @@
 ### any-sync-gui
 
-### dev
+### DEV
+依赖： nodejs v16.19.0
 
 > fe
 
