@@ -1,11 +1,12 @@
 const multer = require('multer')
 const {getDeviceInfo} = require('./../utils')
 const {Devs} = require('./../model')
+const {resourcesPath} = require('./../config')
 
 const storage = multer.diskStorage({
     fieldSize: 1024*1024*1025,
     destination: function (req, file, cb) {
-        cb(null, 'resources/')
+        cb(null, resourcesPath)
     },
     filename: function (req, file, cb) {
         let devInfo = getDeviceInfo(req)

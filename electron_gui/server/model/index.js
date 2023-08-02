@@ -1,7 +1,7 @@
 const {Device} = require('./device')
 const {newDevices} = require('./devices')
 
-global.devicesInfo = newDevices(60*15)
+global.devicesInfo = newDevices(60*21)
 
 module.exports = {
     Devs: global.devicesInfo,

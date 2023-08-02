@@ -17,24 +17,23 @@
         <b-col>
           <b-card style="text-align: left">
             <b-alert show variant="primary">
-              <span style="text-align: left;display: inline">
+              <span style="font-size: 14px">
                 {{ dev.show }}
               </span>
-
-              <span style="float: right; display: inline">
-                <b-badge variant="light">
-
+              <b-badge style="float: right" variant="light">
                 <span v-show="ws" style="color: cadetblue">
                    <b-icon variant="success" icon="wifi" font-scale="1.5"></b-icon>
                 已连接
                 </span>
-                  <span v-show="!ws" style="color: grey">
+                <span v-show="!ws" style="color: grey">
                    <b-icon icon="wifi-off" font-scale="1.5"></b-icon>
                 中断
                 </span>
+              </b-badge>
 
-                </b-badge>
-              </span>
+
+
+
             </b-alert>
             <b-badge style="color: dimgrey" variant="light">选择设备发起同步</b-badge>
 
@@ -84,7 +83,8 @@
       <b-row class="sync-input-row" style="text-align: left">
         <b-col>
           <b-badge pill variant="warning">同步文件</b-badge>
-          <uploader v-show="choiceDev" :options="uploadOptions" @file-success="onFileUploadSuccess" class="sync-uploader">
+          <uploader v-show="choiceDev" :options="uploadOptions" @file-success="onFileUploadSuccess"
+                    class="sync-uploader">
             <uploader-unsupport></uploader-unsupport>
             <uploader-drop>
               <p>拖拽文件上传或</p>
@@ -112,22 +112,25 @@
             <b-card-sub-title>
               <b-icon variant="primary" icon="messenger"></b-icon>
               &nbsp;
-              <span>{{syncCard.fromShow}}</span>
-              <span style="float: right; font-size: xx-small">{{formatTime(syncCard.syncTime)}}</span>
+              <span>{{ syncCard.fromShow }}</span>
+              <span style="float: right; font-size: xx-small">{{ formatTime(syncCard.syncTime) }}</span>
             </b-card-sub-title>
             <b-card-text>
               <b-list-group style="margin-top: 10px">
-                <b-list-group-item v-for="(syncDetail, didx) in syncCard.syncDetails" :key="didx" class="d-flex justify-content-between align-items-center">
+                <b-list-group-item v-for="(syncDetail, didx) in syncCard.syncDetails" :key="didx"
+                                   class="d-flex justify-content-between align-items-center">
                   <span>
                     <b-icon icon="image-fill"></b-icon>
                     &nbsp;
-                    <a download :href="genUrl('/'+syncDetail.fileHash)" >{{ syncDetail.show }}</a>
+                    <a download :href="genUrl('/'+syncDetail.fileHash)">{{ syncDetail.show }}</a>
                     &nbsp;
                     <b-badge variant="primary" pill>{{ syncDetail.fileSize }}</b-badge>
                   </span>
 
 
-                  <b-badge pill @click="clickPreview(syncDetail.fileHash, syncDetail.fileExt)" href="#" variant="info">查看</b-badge>
+                  <b-badge pill @click="clickPreview(syncDetail.fileHash, syncDetail.fileExt)" href="#" variant="info">
+                    查看
+                  </b-badge>
                 </b-list-group-item>
               </b-list-group>
             </b-card-text>
@@ -136,11 +139,13 @@
         </b-col>
       </b-row>
 
-      <b-modal scrollable size="lg" hide-footer v-model="showPreviewModal">
-        <div class="d-block text-center">
-          <b-img style="width: 100%;height: 100%" v-show="showPreviewCd()==='img'" thumbnail fluid :src="previewDetail.url" :alt="previewDetail.ext"></b-img>
-          <video style="width: 100%;height: 100%" controls autoplay :src="previewDetail.url" v-show="showPreviewCd()==='video'"></video>
-          <a  v-show="showPreviewCd()==='other'" :href="previewDetail.url" download>文件类型不支持预览，点击下载</a>
+      <b-modal scrollable size="xl" hide-footer v-model="showPreviewModal">
+        <div style="text-align: center" class="d-block text-center">
+          <b-img style="max-width: 480px;max-height: 720px; height: auto;width:auto" v-show="showPreviewCd()==='img'"
+                 thumbnail fluid :src="previewDetail.url" :alt="previewDetail.ext"></b-img>
+          <video style="width: 100%;height: 100%" controls autoplay :src="previewDetail.url"
+                 v-show="showPreviewCd()==='video'"></video>
+          <a v-show="showPreviewCd()==='other'" :href="previewDetail.url" download>文件类型不支持预览，点击下载</a>
         </div>
 
       </b-modal>
@@ -168,7 +173,7 @@ export default {
       uploadOptions: {
         target: `http://${window.location.hostname}:8081/upload`,
         testChunks: false,
-        chunkSize: 1024*1024*1025
+        chunkSize: 1024 * 1024 * 1025
       },
       uploadAttrs: {
         accept: 'image/*'
@@ -181,7 +186,7 @@ export default {
         sync: 'sync',
       },
       showPreviewModal: false,
-      previewDetail:{url:null, ext: ''},
+      previewDetail: {url: null, ext: ''},
 
       isMobile: navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
     }
@@ -189,11 +194,18 @@ export default {
   mounted() {
     this.getLocalInfo()
     this.pingDevice()
+
+    // 10min 发起一次心跳，1min发起一次重试连接
     setInterval(() => {
       if (this.ws) {
         this.ws.send(JSON.stringify({msgEvent: this.wsMsgType.ping}))
       }
-    }, 1000 * 60 * 5)
+    }, 1000 * 60 * 10)
+    setInterval(() => {
+      if (!this.ws) {
+        this.pingDevice()
+      }
+    }, 1000 * 60)
   },
   watch: {
     syncText() {
@@ -212,28 +224,28 @@ export default {
     },
   },
   methods: {
-    dlEvent(url){
+    dlEvent(url) {
       console.log('url', url)
       let xhr = new XMLHttpRequest()
       xhr.open('GET', url)
       xhr.send()
     },
-    showPreviewCd(){
-      if(['.jpg', '.png', '.jpeg', '.webp'].indexOf(this.previewDetail.ext.toLowerCase()) !== -1){
+    showPreviewCd() {
+      if (['.jpg', '.png', '.jpeg', '.webp'].indexOf(this.previewDetail.ext.toLowerCase()) !== -1) {
         return 'img'
       }
-      if(['.mp4', '.av', '.mov'].indexOf(this.previewDetail.ext.toLowerCase()) !== -1){
+      if (['.mp4', '.av', '.mov'].indexOf(this.previewDetail.ext.toLowerCase()) !== -1) {
         return 'video'
       }
       return 'other';
 
     },
-    clickPreview(fileHash, fileExt){
+    clickPreview(fileHash, fileExt) {
       this.showPreviewModal = true
       this.previewDetail.ext = fileExt
-      this.previewDetail.url = this.genUrl('/'+fileHash)
+      this.previewDetail.url = this.genUrl('/' + fileHash)
     },
-    onFileUploadSuccess(rootFile, file, response){
+    onFileUploadSuccess(rootFile, file, response) {
       console.log('upload success', response)
       this.ws.send(JSON.stringify(
           {
@@ -275,7 +287,6 @@ export default {
     pingDevice: function () {
       this.$http.get(this.genUrl('/ping')).then(resp => {
         console.log(resp.data)
-
         this.initWsEvent()
       })
     },

@@ -1,4 +1,3 @@
-const {log} = require("builder-util");
 const {newDevice} = require('./device')
 const {syncTypeEum}  = require('./syncInfo')
 
@@ -21,7 +20,7 @@ class Devices {
             }
         }
         let newDevs = []
-        log.info(`fromdev:${fromDev}, content: ${syncContent}`)
+        console.log(`fromdev:${fromDev}, content: ${syncContent}`)
         this.devs.forEach((val)=>{
             if(syncContent.toDevId === val.devId){
                 val.syncDevice(fromDev, syncContent)

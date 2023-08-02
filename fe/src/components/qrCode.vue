@@ -59,7 +59,6 @@ export default {
         colorLight: this.colorLight,
         correctLevel : QRCode.CorrectLevel.H
       })
-      console.log(this.qrcode)
     },
   }
 }

@@ -46,7 +46,9 @@ class SyncWsManager {
      */
     sendMsg(groupId, devId, msg) {
         console.log(`send[${devId}] msg:${JSON.stringify(msg)}`)
-        this.clients[groupId][devId].send(JSON.stringify(msg))
+        if(this.clients[groupId][devId]){
+            this.clients[groupId][devId].send(JSON.stringify(msg))
+        }
     }
 
     sendGroupMsg(groupId, msg) {

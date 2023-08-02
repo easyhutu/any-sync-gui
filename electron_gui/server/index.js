@@ -4,8 +4,7 @@ const expressWs = require('express-ws')
 const {router} = require('./router')
 const {syncWSMng} = require('./servive')
 const {basename} = require('path')
-const {getDeviceInfo} = require('./utils')
-
+const {resourcesPath, distPath} = require('./config')
 
 const appSrv = express()
 
@@ -20,9 +19,8 @@ appSrv.use(cookieParser())
 appSrv.use(handleExpress)
 appSrv.use(router)
 
-appSrv.use('/dl',express.static('resources', {
-    setHeaders: (res, p, stat) => {
-        let devInfo = getDeviceInfo(res.req)
+appSrv.use('/dl',express.static(resourcesPath, {
+    setHeaders: (res, p) => {
         res.set('Content-Type', 'application/octet-tream')
         let realName = basename(p).substring(33)
         console.log('real name', realName)
@@ -30,7 +28,7 @@ appSrv.use('/dl',express.static('resources', {
     }
 }))
 
-appSrv.use(express.static('dist'))
+appSrv.use(express.static(distPath))
 
 var syncWsM = syncWSMng.newSyncWsManager(appSrv)
 syncWsM.listenClientConnect()
