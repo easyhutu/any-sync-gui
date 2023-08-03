@@ -2,7 +2,7 @@
   "name": "any_sync",
   "version": "1.0.0",
   "productName": "Lan同步",
-  "description": "",
+  "description": "局域网同步工具",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
-  "author": "",
+  "author": "meng",
   "license": "ISC",
   "devDependencies": {
     "@electron-forge/cli": "^6.2.1",
