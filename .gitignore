@@ -27,3 +27,5 @@ pnpm-debug.log*
 electron_gui/resources
 electron_gui/out
 electron_gui/dist
+.env
+any_sync_cfg.json

@@ -1,5 +1,7 @@
 const crypto = require('crypto')
 const os = require('os')
+const {kvStore} = require('./kvStore')
+const baiduTrans = require('./baiduTrans')
 
 function getDeviceInfo(req) {
     let ua = req.get('User-Agent')
@@ -45,5 +47,7 @@ function getLocalDeviceIp() {
 
 module.exports = {
     getDeviceInfo,
-    getLocalDeviceIp
+    getLocalDeviceIp,
+    kvStore,
+    baiduTrans
 }

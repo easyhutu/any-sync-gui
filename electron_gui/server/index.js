@@ -10,14 +10,20 @@ const appSrv = express()
 
 function handleExpress(req, res, next) {
     res.set('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Headers','Content-Type, Accept')
+
     next()
 }
 
 expressWs(appSrv)
 
+appSrv.use(express.json())
+appSrv.use(express.urlencoded({extended: true}))
+
 appSrv.use(cookieParser())
 appSrv.use(handleExpress)
 appSrv.use(router)
+
 
 appSrv.use('/dl',express.static(resourcesPath, {
     setHeaders: (res, p) => {
@@ -32,6 +38,8 @@ appSrv.use(express.static(distPath))
 
 var syncWsM = syncWSMng.newSyncWsManager(appSrv)
 syncWsM.listenClientConnect()
+
+global.SYNCWS = syncWsM
 
 module.exports = {
     appSrv

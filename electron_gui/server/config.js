@@ -1,5 +1,7 @@
 const path = require('path')
 const fs = require('fs')
+require('dotenv').config()
+const {kvStore} = require('./utils')
 
 const isDebug = process.env.NODE_ENV === 'debug'
 
@@ -8,6 +10,9 @@ global.SrvListenPort = 8081
 const resourcesPath = isDebug? 'resources': path.join(process.resourcesPath, 'resources')
 
 const distPath = isDebug? 'dist': path.join(process.resourcesPath, 'dist')
+
+console.log(`resource path ${resourcesPath}, dist path: ${distPath}`)
+kvStore.set('sysInfo', {resource: resourcesPath, dist: distPath, listenPort: global.SrvListenPort, env: process.env.NODE_ENV})
 
 try {
     if (!fs.existsSync(resourcesPath)) {

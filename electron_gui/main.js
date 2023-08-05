@@ -1,13 +1,16 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, Menu } = require('electron')
+const {CreateMenuTemp} = require('./components')
 const path = require('path')
 const {appSrv} = require('./server')
 
 appSrv.listen(8081) // 启动服务
 
 const createWindow = () => {
+
+
     // 创建浏览窗口
     const mainWindow = new BrowserWindow({
         width: 860,
@@ -16,10 +19,9 @@ const createWindow = () => {
             preload: path.join(__dirname, 'preload.js')
         }
     })
-
+    Menu.setApplicationMenu(Menu.buildFromTemplate(CreateMenuTemp(mainWindow)))
     // 加载 index.html
     mainWindow.loadURL('http://localhost:8081')
-
     // 打开开发工具
     // mainWindow.webContents.openDevTools()
 }

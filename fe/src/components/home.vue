@@ -32,18 +32,20 @@
               </b-badge>
 
 
-
-
             </b-alert>
             <b-badge style="color: dimgrey" variant="light">选择设备发起同步</b-badge>
 
             <b-list-group style="text-align: left">
-              <b-list-group-item :active="de.devId===choiceDev" class="devListGroup" v-for="de in devs" :href="'#'"
+              <b-list-group-item :disabled="!de.online" :active="de.devId===choiceDev" class="d-flex align-items-center"
+                                 v-for="de in devs"
+                                 href="javascript:void(0)"
                                  @click="clickChoiceDev(de.devId)"
                                  :id="de.devId" :key="de.devId">
-                <b-avatar style="color: aquamarine;" size="sm" variant="secondary"
+                <b-avatar class="mr-2" style="color: aquamarine;" size="sm" variant="secondary"
                           :icon="genDevIcon(de.cate)"></b-avatar>
-                {{ de.show }}
+                <span class="mr-auto">{{ de.show }}</span>
+                <b-icon style="color: #9be7ac" v-show="de.online" icon="wifi"></b-icon>
+                <b-icon style="color: #4e555b" v-show="!de.online" icon="wifi-off"></b-icon>
               </b-list-group-item>
             </b-list-group>
 
@@ -70,10 +72,25 @@
             <b-card-sub-title>
               <b-icon variant="primary" icon="messenger"></b-icon>
               &nbsp;
-              <span>{{ syncCard.fromShow }}</span>
+              <span style="font-size: 14px">{{ syncCard.fromShow }}</span>
               <span style="float: right; font-size: xx-small">{{ formatTime(syncCard.syncTime) }}</span>
             </b-card-sub-title>
-            <b-card-text style="margin-top: 8px" class="user-select-all">{{ syncCard.syncDetails[0].content }}
+            <b-card-text style="margin-top: 8px" class="user-select-all">
+              <a @click="clickTranslate" style="color: #1d2124;text-decoration: none" :id="'popover'+idx"
+                 href="javascript:void(0)">{{ syncCard.syncDetails[0].content }}</a>
+              <div>
+                <b-popover v-if="enableTranslate" :target="'popover'+idx" placement="top" triggers="focus">
+                  <template #title>
+                    <b-icon icon="translate"></b-icon>
+                    <span style="font-size: small">
+                  {{ transInfo.from }}
+                  <b-icon icon="arrow-right"></b-icon>
+                  {{ transInfo.to }}
+                </span></template>
+                  {{ transInfo.trans_result ? transInfo.trans_result[0].dst : 'loading...' }}
+                </b-popover>
+              </div>
+
             </b-card-text>
           </b-card>
 
@@ -112,7 +129,7 @@
             <b-card-sub-title>
               <b-icon variant="primary" icon="messenger"></b-icon>
               &nbsp;
-              <span>{{ syncCard.fromShow }}</span>
+              <span style="font-size: 14px">{{ syncCard.fromShow }}</span>
               <span style="float: right; font-size: xx-small">{{ formatTime(syncCard.syncTime) }}</span>
             </b-card-sub-title>
             <b-card-text>
@@ -184,10 +201,12 @@ export default {
         ping: 'ping',
         pingGroup: 'pingGroup',
         sync: 'sync',
+        anySetting: 'anySetting'
       },
       showPreviewModal: false,
       previewDetail: {url: null, ext: ''},
-
+      transInfo: {},
+      enableTranslate: false,
       isMobile: navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
     }
   },
@@ -224,6 +243,18 @@ export default {
     },
   },
   methods: {
+    clickTranslate() {
+      if (!this.enableTranslate) {
+        return
+      }
+      this.transInfo = {}
+      let info = window.getSelection().toString()
+      console.log(info)
+      this.$http.post(this.genUrl('/translate'), {text: info}).then((resp) => {
+        console.log(resp.data)
+        this.transInfo = resp.data.result
+      })
+    },
     dlEvent(url) {
       console.log('url', url)
       let xhr = new XMLHttpRequest()
@@ -260,7 +291,7 @@ export default {
     },
     formatTime(timestamp) {
       let date = new Date(timestamp)
-      return date.toTimeString()
+      return date.toTimeString().replace('(中国标准时间)', '')
     },
     clickChoiceDev: function (devId) {
       this.choiceDev = devId
@@ -289,6 +320,9 @@ export default {
         console.log(resp.data)
         this.initWsEvent()
       })
+      this.$http.get(this.genUrl('/setting')).then(resp => {
+        this.enableTranslate = resp.data.baiduCfg ? resp.data.baiduCfg.enableBaiduTrans : false
+      })
     },
     initWsEvent: function () {
       this.ws = new WebSocket(`ws://${window.location.hostname}:${this.listenPort}/ws/sync/${this.wsGroupId}`)
@@ -308,7 +342,12 @@ export default {
           case this.wsMsgType.sync: {
             this.devs = msgObj.devs.devs
             this.dev = msgObj.devs.dev
+            break
           }
+          case this.wsMsgType.anySetting: {
+            this.enableTranslate = msgObj.cfg.enableBaiduTrans
+          }
+
         }
       }
       this.ws.onerror = (errmsg) => {

@@ -63,7 +63,7 @@ class Devices {
         this.devs = newDevs
     }
 
-    checkDev(devId, show, cate) {
+    checkDev(devId, show, cate, onlineDevIds) {
         let isExist = false
         let newDevs = []
         let newDev = null
@@ -75,6 +75,10 @@ class Devices {
             }
 
             if (Date.now()-val.lastTime-this.pingSecond*1000 < 0) {
+                if(onlineDevIds){
+                    val.online = onlineDevIds.indexOf(val.devId) !== -1;
+                }
+
                 newDevs.push(val)
             }
         })

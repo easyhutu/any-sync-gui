@@ -5,6 +5,7 @@ const MsgType = {
     ping: 'ping',
     pingGroup: 'pingGroup',
     sync: 'sync',
+    anySetting: 'anySetting'
 }
 
 class SyncWsManager {
@@ -39,9 +40,7 @@ class SyncWsManager {
             ws.on("close", (msg) => {
                 console.log(`ws[${devInfo.deviceId}] is closed`);
                 delete this.clients[groupId][devInfo.deviceId]
-                Devs.delDev(devInfo.deviceId)
                 this.sendGroupMsg(groupId, {msgEvent: MsgType.ping})
-
             });
         });
     }
@@ -76,11 +75,13 @@ class SyncWsManager {
         console.log(`receive[${devInfo.deviceId}] msg:${msg}`)
         let msgObj = JSON.parse(msg)
         let msgEvent = msgObj.msgEvent
-        let content = msgObj.content //content:{toDevId, syncType, content, fileHash}
+        let content = msgObj.content
 
         switch (msgEvent) {
             case MsgType.ping: {
-                let devs = Devs.checkDev(devInfo.deviceId, devInfo.show, devInfo.cate)
+                console.log('online devs:', Object.keys(this.clients[groupId]))
+                let devs = Devs.checkDev(devInfo.deviceId, devInfo.show, devInfo.cate, Object.keys(this.clients[groupId]))
+
                 this.sendMsg(groupId, devInfo.deviceId, {msgEvent: MsgType.sync, devs})
                 break
             }
@@ -89,6 +90,7 @@ class SyncWsManager {
                 break
             }
             case MsgType.sync: {
+                //content:{toDevId, syncType, content, fileHash}
                 Devs.syncEvent(devInfo.deviceId, content)
                 this.sendMsg(groupId, content.toDevId, {msgEvent: MsgType.ping})
                 break

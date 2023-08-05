@@ -12,6 +12,7 @@ class Device {
         this.devId = devId
         this.show = show
         this.cate = cate
+        this.online = false
         this.syncFile = []
         this.syncText = []
         this.uploadFiles = {}
