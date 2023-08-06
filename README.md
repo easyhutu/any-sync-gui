@@ -1,5 +1,10 @@
 ### any-sync-gui
 
+> 局域网同步工具
+> 
+![](doc/pc.png)
+![](doc/phone.png)
+
 ### DEV
 依赖： nodejs v16.19.0
 

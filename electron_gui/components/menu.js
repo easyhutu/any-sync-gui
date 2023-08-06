@@ -29,6 +29,12 @@ function CreateMenuTemp(parentWin) {
                     }
                 },
                 {
+                    label: '重载UI',
+                    click(){
+                        parentWin.reload()
+                    }
+                },
+                {
                     label: '关于',
                     click(){
                         shell.openExternal('https://github.com/easyhutu/any-sync-gui')
