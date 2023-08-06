@@ -1,7 +1,9 @@
 ### any-sync-gui
 
 > 局域网同步工具
-> 
+
+为技术人员在多台pc或移动设备之间共享图文视频信息
+
 ![](doc/pc.png)
 ![](doc/phone.png)
 
