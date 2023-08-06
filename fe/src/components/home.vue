@@ -244,15 +244,14 @@ export default {
   },
   methods: {
     clickTranslate() {
-      if (!this.enableTranslate) {
+      let info = window.getSelection().toString()
+      if (!this.enableTranslate || !info) {
         return
       }
       this.transInfo = {}
-      let info = window.getSelection().toString()
-      console.log(info)
       this.$http.post(this.genUrl('/translate'), {text: info}).then((resp) => {
         console.log(resp.data)
-        this.transInfo = resp.data.result
+        this.transInfo = resp.data.result ? resp.data.result: {}
       })
     },
     dlEvent(url) {
