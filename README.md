@@ -1,14 +1,25 @@
-### any-sync-gui
+## any-sync-gui
 
-> 局域网同步工具
+### 局域网同步工具
 
-为技术人员在多台pc或移动设备之间共享图文视频信息
+一个为技术人员在多台pc或移动设备之间同步文本视频信息的应用
+
+### 使用方法
+
+* 下载release包，windows或mac版本，打开应用后，服务默认监听8081端口；
+* 手机扫描二维码打开链接或直接访问http://${ip}:8081打开网页
+* 选择在线的设备，即可显示出同步文本框和文件上传按钮，输入文件或上传文件后同步显示在目标设备上
+
+*同步文本内嵌百度翻译api，可提供实时翻译*
 
 ![](doc/pc.png)
 ![](doc/phone.png)
 
 ### DEV
-依赖： nodejs v16.19.0
+核心依赖： 
+* nodejs v16.19.0
+* Vue
+* Electron
 
 > fe
 
@@ -26,7 +37,7 @@ nmp run serve
 npm run build
 ```
 
-> electron_gui初始化
+> electron_gui桌面应用及伴生服务初始化
 
 ```shell
 cd electron_gui
