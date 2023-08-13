@@ -2,17 +2,17 @@
 
 ### 跨平台局域网同步工具
 
-一款为技术人员在多台pc或移动设备之间同步文本视频信息的应用
+一款支持在pc与pc或移动设备之间同步文本信息或文件的应用
 
 ### 使用方法
 
-* 下载release包，windows或mac版本，打开应用后，服务默认监听8081端口
+* 前往[release](https://github.com/easyhutu/any-sync-gui/releases)下载或 *链接：https://pan.baidu.com/s/18uiIlep-jHnZjc5iwvNqSg?pwd=bt73*, windows或mac版本，打开应用后，服务默认监听8081端口
 * 手机扫描二维码打开链接或直接访问http://${ip}:8081打开网页
 * 选择在线的设备，即可显示出同步文本框和文件上传按钮，输入文件或上传文件后同步显示在目标设备上
 
 *同步文本内嵌百度翻译api，可提供实时翻译*
 
-不需要UI界面可移步 [https://github.com/easyhutu/any-sync](https://github.com/easyhutu/any-sync) 下载二进制文件
+不需要UI界面可移步 [https://github.com/easyhutu/any-sync](https://github.com/easyhutu/any-sync) 下载go二进制文件
 
 ![pc端](doc/pc.png)
 ![移动端](doc/phone.png)
@@ -49,6 +49,6 @@ npm install
 # 调试
 npm run start
 
-# 打包应用，一个平台只能打包对应平台的应用
+# 打包应用
 npm run make
 ```
