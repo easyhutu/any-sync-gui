@@ -6,7 +6,7 @@
 
 ### 使用方法
 
-* 前往[release](https://github.com/easyhutu/any-sync-gui/releases)下载或 *链接：https://pan.baidu.com/s/18uiIlep-jHnZjc5iwvNqSg?pwd=bt73*, windows或mac版本，打开应用后，服务默认监听8081端口
+* 前往[release](https://github.com/easyhutu/any-sync-gui/releases)或 *链接：https://pan.baidu.com/s/18uiIlep-jHnZjc5iwvNqSg?pwd=bt73* 下载, 打开应用后，服务默认监听8081端口
 * 手机扫描二维码打开链接或直接访问http://${ip}:8081打开网页
 * 选择在线的设备，即可显示出同步文本框和文件上传按钮，输入文件或上传文件后同步显示在目标设备上
 
