@@ -134,20 +134,33 @@
             </b-card-sub-title>
             <b-card-text>
               <b-list-group style="margin-top: 10px">
-                <b-list-group-item v-for="(syncDetail, didx) in syncCard.syncDetails" :key="didx"
-                                   class="d-flex justify-content-between align-items-center">
-                  <span>
-                    <b-icon icon="image-fill"></b-icon>
-                    &nbsp;
-                    <a download :href="genUrl('/'+syncDetail.fileHash)">{{ syncDetail.show }}</a>
-                    &nbsp;
-                    <b-badge variant="primary" pill>{{ syncDetail.fileSize }}</b-badge>
-                  </span>
+                <b-list-group-item v-for="(syncDetail, didx) in syncCard.syncDetails" :key="didx">
+                  <b-row>
+                    <b-col cols="1">
+                      <b-icon icon="image-fill"></b-icon>
+                    </b-col>
+                    <b-col cols="6">
+                      <div class="file-show-link">
+                        <a download :href="genUrl('/'+syncDetail.fileHash)">
+                          {{ syncDetail.show }}
+                        </a>
+                      </div>
+                    </b-col>
+                    <b-col cols="1">
+                      <b-badge variant="info" pill>{{ syncDetail.fileSize }}</b-badge>
+                    </b-col>
+                    <b-col cols="1"></b-col>
+                    <b-col align-self="center" cols="2" style="text-align: right;">
+                      <b-badge pill @click="clickPreview(syncDetail.fileHash, syncDetail.fileExt, syncDetail.show)"
+                               href="#"
+                               variant="primary">
+                        查看
+                      </b-badge>
+
+                    </b-col>
+                  </b-row>
 
 
-                  <b-badge pill @click="clickPreview(syncDetail.fileHash, syncDetail.fileExt)" href="#" variant="info">
-                    查看
-                  </b-badge>
                 </b-list-group-item>
               </b-list-group>
             </b-card-text>
@@ -157,6 +170,7 @@
       </b-row>
 
       <b-modal scrollable size="xl" hide-footer v-model="showPreviewModal">
+        <p>{{ previewDetail.name }}</p>
         <div style="text-align: center" class="d-block text-center">
           <b-img style="max-width: 480px;max-height: 720px; height: auto;width:auto" v-show="showPreviewCd()==='img'"
                  thumbnail fluid :src="previewDetail.url" :alt="previewDetail.ext"></b-img>
@@ -204,7 +218,7 @@ export default {
         anySetting: 'anySetting'
       },
       showPreviewModal: false,
-      previewDetail: {url: null, ext: ''},
+      previewDetail: {url: null, ext: '', name: ''},
       transInfo: {},
       enableTranslate: false,
       isMobile: navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
@@ -251,7 +265,7 @@ export default {
       this.transInfo = {}
       this.$http.post(this.genUrl('/translate'), {text: info}).then((resp) => {
         console.log(resp.data)
-        this.transInfo = resp.data.result ? resp.data.result: {}
+        this.transInfo = resp.data.result ? resp.data.result : {}
       })
     },
     dlEvent(url) {
@@ -270,10 +284,11 @@ export default {
       return 'other';
 
     },
-    clickPreview(fileHash, fileExt) {
+    clickPreview(fileHash, fileExt, fileName) {
       this.showPreviewModal = true
       this.previewDetail.ext = fileExt
       this.previewDetail.url = this.genUrl('/' + fileHash)
+      this.previewDetail.name = fileName
     },
     onFileUploadSuccess(rootFile, file, response) {
       console.log('upload success', response)
@@ -371,4 +386,9 @@ export default {
   margin-top: 8px;
 }
 
+.file-show-link{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 </style>

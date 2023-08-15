@@ -35,7 +35,7 @@ function CreateMenuTemp(parentWin) {
                 },
 
                 {
-                    label: '项目链接',
+                    label: '项目地址',
                     click() {
                         shell.openExternal('https://github.com/easyhutu/any-sync-gui')
                     }
@@ -50,15 +50,15 @@ function CreateMenuTemp(parentWin) {
             ]
         },
         {
-            label: "Edit",
+            label: "编辑",
             submenu: [
-                {label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:"},
-                {label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:"},
+                {label: "撤销", accelerator: "CmdOrCtrl+Z", selector: "undo:"},
+                {label: "重做", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:"},
                 {type: "separator"},
-                {label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:"},
-                {label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:"},
-                {label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:"},
-                {label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:"}
+                {label: "剪切", accelerator: "CmdOrCtrl+X", selector: "cut:"},
+                {label: "复制", accelerator: "CmdOrCtrl+C", selector: "copy:"},
+                {label: "粘贴", accelerator: "CmdOrCtrl+V", selector: "paste:"},
+                {label: "全选", accelerator: "CmdOrCtrl+A", selector: "selectAll:"}
             ]
         }
 
