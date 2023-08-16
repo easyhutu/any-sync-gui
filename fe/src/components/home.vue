@@ -16,23 +16,24 @@
         </b-col>
         <b-col>
           <b-card style="text-align: left">
-            <b-alert show variant="primary">
-              <span style="font-size: 14px">
+            <b-card bg-variant="info" text-variant="white" >
+              <b-card-text>
+                <span style="font-size: 15px">
                 {{ dev.show }}
               </span>
-              <b-badge style="float: right" variant="light">
+                <b-badge style="float: right" variant="light">
                 <span v-show="ws" style="color: cadetblue">
                    <b-icon variant="success" icon="wifi" font-scale="1.5"></b-icon>
                 已连接
                 </span>
-                <span v-show="!ws" style="color: grey">
+                  <span v-show="!ws" style="color: grey">
                    <b-icon icon="wifi-off" font-scale="1.5"></b-icon>
                 中断
                 </span>
-              </b-badge>
+                </b-badge>
+              </b-card-text>
+            </b-card>
 
-
-            </b-alert>
             <b-badge style="color: dimgrey" variant="light">选择设备发起同步</b-badge>
 
             <b-list-group style="text-align: left">
@@ -386,9 +387,9 @@ export default {
   margin-top: 8px;
 }
 
-.file-show-link{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+.file-show-link {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
