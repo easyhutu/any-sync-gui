@@ -16,11 +16,11 @@
         </b-col>
         <b-col>
           <b-card style="text-align: left">
-            <b-card bg-variant="info" text-variant="white" >
+            <b-card text-variant="white" img-height="100px" overlay img-src="/bg.jpg" >
               <b-card-text>
-                <span style="font-size: 15px">
+                <span  style="font-weight: bold;">
                 {{ dev.show }}
-              </span>
+                </span>
                 <b-badge style="float: right" variant="light">
                 <span v-show="ws" style="color: cadetblue">
                    <b-icon variant="success" icon="wifi" font-scale="1.5"></b-icon>
