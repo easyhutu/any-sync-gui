@@ -1,6 +1,6 @@
 {
   "name": "any_sync",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "productName": "Lan同步",
   "description": "局域网同步工具",
   "main": "main.js",
