@@ -29,7 +29,7 @@ const createWindow = () => {
     // 加载 index.html
     mainWindow.loadURL(`http://localhost:8081?masterId=${MasterId}`)
     // 打开开发工具
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()
 }
 
 // 这段程序将会在 Electron 结束初始化
