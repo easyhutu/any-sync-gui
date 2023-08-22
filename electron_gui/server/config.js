@@ -5,6 +5,8 @@ const {kvStore} = require('./utils')
 
 const isDebug = process.env.NODE_ENV === 'debug'
 
+const MasterId = `master-${Date.now()}`
+
 global.SrvListenPort = 8081
 
 const resourcesPath = isDebug? 'resources': path.join(process.resourcesPath, 'resources')
@@ -31,5 +33,5 @@ try {
 }
 
 module.exports = {
-    resourcesPath, distPath
+    resourcesPath, distPath, MasterId
 }

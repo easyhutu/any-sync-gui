@@ -739,6 +739,7 @@ function copyImgToClipboard() {
 	// 防止截图不截取任何区域，直接双击拷贝，拷贝的是上次截的图
 	if (url) {
 		ipcRenderer.send('insert-canvas');
+		ipcRenderer.send('master-screen-capture', url)
 	}
 
 	cutFinished('quit');

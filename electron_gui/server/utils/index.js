@@ -1,6 +1,6 @@
 const crypto = require('crypto')
 const os = require('os')
-const {kvStore} = require('./kvStore')
+const {kvStore, getWithFile} = require('./kvStore')
 const baiduTrans = require('./baiduTrans')
 
 function getDeviceInfo(req) {
@@ -34,13 +34,18 @@ function getDeviceInfo(req) {
 function getLocalDeviceIp() {
     const ipInfo = os.networkInterfaces()
     let ip = ''
-    Object.values(ipInfo).forEach(list=>{
-        list.forEach(value => {
-            if(value.family === 'IPv4' && value.address !== '127.0.0.1' && !value.internal){
-                ip = value.address
-            }
+    try{
+        Object.values(ipInfo).forEach(list=>{
+            list.forEach(value => {
+                if(value.family === 'IPv4' && value.address !== '127.0.0.1' && !value.internal){
+                    ip = value.address
+                    throw null
+                }
+            })
         })
-    })
+    }catch (e) {
+
+    }
     return ip
 }
 
@@ -49,5 +54,6 @@ module.exports = {
     getDeviceInfo,
     getLocalDeviceIp,
     kvStore,
-    baiduTrans
+    baiduTrans,
+    getWithFile
 }

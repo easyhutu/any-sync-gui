@@ -1,5 +1,6 @@
 const {Devs} = require('./../model')
 const {getDeviceInfo, getLocalDeviceIp} = require('./../utils')
+const {MasterId} = require('./../config')
 
 
 function pingDev(req, res) {
@@ -7,8 +8,9 @@ function pingDev(req, res) {
     if (devInfo.setCookie){
         res.cookie(devInfo.name, devInfo.deviceId)
     }
+    let isMaster = req.query.masterId === MasterId
     console.log('devs:', JSON.stringify(Devs))
-    res.send(Devs.checkDev(devInfo.deviceId, devInfo.show, devInfo.cate))
+    res.send(Devs.checkDev(devInfo.deviceId, devInfo.show, devInfo.cate, null, isMaster))
 
 }
 

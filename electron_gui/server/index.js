@@ -1,10 +1,11 @@
 const express = require('express')
 const cookieParser = require('cookie-parser')
 const expressWs = require('express-ws')
+const urlencode = require('urlencode')
 const {router} = require('./router')
 const {syncWSMng} = require('./servive')
 const {basename} = require('path')
-const {resourcesPath, distPath} = require('./config')
+const {resourcesPath, distPath, MasterId} = require('./config')
 
 const appSrv = express()
 
@@ -29,8 +30,7 @@ appSrv.use('/dl',express.static(resourcesPath, {
     setHeaders: (res, p) => {
         res.set('Content-Type', 'application/octet-tream')
         let realName = basename(p).substring(33)
-        console.log('real name', realName)
-        res.set('Content-disposition', `attachment;filename=${realName}`)
+        res.set('Content-disposition', `attachment;filename=${urlencode(realName)}`)
     }
 }))
 
@@ -42,5 +42,5 @@ syncWsM.listenClientConnect()
 global.SYNCWS = syncWsM
 
 module.exports = {
-    appSrv
+    appSrv, MasterId, syncWsM
 }

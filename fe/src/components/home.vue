@@ -16,9 +16,9 @@
         </b-col>
         <b-col>
           <b-card style="text-align: left">
-            <b-card text-variant="white" img-height="100px" overlay img-src="/bg.jpg" >
+            <b-card text-variant="white" img-height="100px" overlay img-src="/bg.jpg">
               <b-card-text>
-                <span  style="font-weight: bold;">
+                <span style="font-weight: bold;">
                 {{ dev.show }}
                 </span>
                 <b-badge style="float: right" variant="light">
@@ -40,7 +40,7 @@
               <b-list-group-item :disabled="!de.online" :active="de.devId===choiceDev" class="d-flex align-items-center"
                                  v-for="de in devs"
                                  href="javascript:void(0)"
-                                 @click="clickChoiceDev(de.devId)"
+                                 @click="clickChoiceDev(de)"
                                  :id="de.devId" :key="de.devId">
                 <b-avatar class="mr-2" style="color: aquamarine;" size="sm" variant="secondary"
                           :icon="genDevIcon(de.cate)"></b-avatar>
@@ -136,32 +136,26 @@
             <b-card-text>
               <b-list-group style="margin-top: 10px">
                 <b-list-group-item v-for="(syncDetail, didx) in syncCard.syncDetails" :key="didx">
-                  <b-row>
-                    <b-col cols="1">
-                      <b-icon icon="image-fill"></b-icon>
-                    </b-col>
-                    <b-col cols="6">
-                      <div class="file-show-link">
-                        <a download :href="genUrl('/'+syncDetail.fileHash)">
-                          {{ syncDetail.show }}
-                        </a>
-                      </div>
-                    </b-col>
-                    <b-col cols="1">
-                      <b-badge variant="info" pill>{{ syncDetail.fileSize }}</b-badge>
-                    </b-col>
-                    <b-col cols="1"></b-col>
-                    <b-col align-self="center" cols="2" style="text-align: right;">
-                      <b-badge pill @click="clickPreview(syncDetail.fileHash, syncDetail.fileExt, syncDetail.show)"
-                               href="#"
-                               variant="primary">
-                        查看
-                      </b-badge>
-
-                    </b-col>
-                  </b-row>
+                  <div style="float: left; width: 5%; margin-right: 5px">
+                    <b-icon icon="image-fill"></b-icon>
+                  </div>
+                  <div class="file-show-link" style="float: left; width: 50%">
+                    <a  download :href="genUrl('/'+syncDetail.fileHash)">
+                      {{ syncDetail.show }}
+                    </a>
+                  </div>
 
 
+                  <div style="float: left; width: 10%">
+                    <b-badge variant="info" pill>{{ syncDetail.fileSize }}</b-badge>
+                  </div>
+                  <div style="float: right; text-align: right; width: 10%">
+                    <b-badge pill @click="clickPreview(syncDetail.fileHash, syncDetail.fileExt, syncDetail.show)"
+                             href="#"
+                             variant="primary">
+                      查看
+                    </b-badge>
+                  </div>
                 </b-list-group-item>
               </b-list-group>
             </b-card-text>
@@ -172,14 +166,21 @@
 
       <b-modal scrollable size="xl" hide-footer v-model="showPreviewModal">
         <p>{{ previewDetail.name }}</p>
-        <div style="text-align: center" class="d-block text-center">
-          <b-img style="max-width: 480px;max-height: 720px; height: auto;width:auto" v-show="showPreviewCd()==='img'"
+        <div style="text-align: center" class="d-block text-center show-container">
+          <b-img class="show-col" v-show="showPreviewCd()==='img'"
                  thumbnail fluid :src="previewDetail.url" :alt="previewDetail.ext"></b-img>
-          <video style="width: 100%;height: 100%" controls autoplay :src="previewDetail.url"
+          <video class="show-col" controls autoplay :src="previewDetail.url"
                  v-show="showPreviewCd()==='video'"></video>
           <a v-show="showPreviewCd()==='other'" :href="previewDetail.url" download>文件类型不支持预览，点击下载</a>
         </div>
+      </b-modal>
 
+      <b-modal title="屏幕截图" scrollable size="xl" hide-footer v-model="showCaptureModal">
+        <div style="text-align: center" class="d-block text-center show-container" >
+          <b-button variant="info" v-show="choiceDev" class="mt-3" @click="shareEventCapture">分享至-{{ choiceDevShow }}</b-button>
+          <b-img class="show-col" thumbnail fluid :src="captureTag" alt="capture Image"></b-img>
+<!--          <span v-html="captureTag"></span>-->
+        </div>
       </b-modal>
     </b-container>
 
@@ -201,6 +202,7 @@ export default {
       dev: {},
       devs: [],
       choiceDev: null,
+      choiceDevShow: null,
       syncText: '',
       uploadOptions: {
         target: `http://${window.location.hostname}:8081/upload`,
@@ -216,12 +218,16 @@ export default {
         ping: 'ping',
         pingGroup: 'pingGroup',
         sync: 'sync',
-        anySetting: 'anySetting'
+        anySetting: 'anySetting',
+        capture: 'capture'
       },
       showPreviewModal: false,
       previewDetail: {url: null, ext: '', name: ''},
       transInfo: {},
       enableTranslate: false,
+      showCaptureModal: false,
+      capturePath: null,
+      captureTag: '',
       isMobile: navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
     }
   },
@@ -258,6 +264,19 @@ export default {
     },
   },
   methods: {
+    shareEventCapture() {
+      this.showCaptureModal = false
+      this.ws.send(JSON.stringify(
+          {
+            msgEvent: this.wsMsgType.sync,
+            content: {
+              syncType: 'file',
+              fileHash: this.capturePath,
+              toDevId: this.choiceDev
+            }
+          }
+      ))
+    },
     clickTranslate() {
       let info = window.getSelection().toString()
       if (!this.enableTranslate || !info) {
@@ -308,9 +327,10 @@ export default {
       let date = new Date(timestamp)
       return date.toTimeString().replace('(中国标准时间)', '')
     },
-    clickChoiceDev: function (devId) {
-      this.choiceDev = devId
-      console.log(devId)
+    clickChoiceDev: function (dev) {
+      this.choiceDev = dev.devId
+      this.choiceDevShow = dev.show
+      console.log('choece dev', dev.devId)
 
     },
     genDevIcon(cate) {
@@ -331,7 +351,8 @@ export default {
       })
     },
     pingDevice: function () {
-      this.$http.get(this.genUrl('/ping')).then(resp => {
+      console.log('masterId', this.$route.query.masterId)
+      this.$http.get(this.genUrl('/ping'), {params: {masterId: this.$route.query.masterId}}).then(resp => {
         console.log(resp.data)
         this.initWsEvent()
       })
@@ -361,6 +382,12 @@ export default {
           }
           case this.wsMsgType.anySetting: {
             this.enableTranslate = msgObj.cfg.enableBaiduTrans
+            break
+          }
+          case this.wsMsgType.capture: {
+            this.capturePath = msgObj.fileHash
+            this.captureTag = `/${this.capturePath}?t=${Date.now()}`
+            this.showCaptureModal = true
           }
 
         }
@@ -391,5 +418,18 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.show-container{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  height: 90%;
+}
+
+.show-col{
+  margin-top: 12px;
+  max-height: 100%;
+  max-width: 100%;
 }
 </style>

@@ -188,10 +188,18 @@ function windowEdit(type) {
 
 
 // cutWindow
-function cutWindow(IMwindow) {
+async function cutWindow(IMwindow, captureCfg) {
     global.IMwindow = IMwindow;
+    await captureCfg
+    console.log('captureCfg', captureCfg)
+    captureCfg.then(value => {
+        if (value.enableCapture){
+            cutKey = value.captureKey
+            console.log(`listen[${cutKey}]running capture server...`)
+            cutFun()
+        }
+    })
 
-    cutFun();
     quitCutFun();
 
     // linux全屏

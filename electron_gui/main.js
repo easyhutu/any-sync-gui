@@ -1,13 +1,15 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const {app, BrowserWindow, Menu, ipcMain} = require('electron')
+const {app, BrowserWindow, Menu, ipcMain, ipcRenderer} = require('electron')
 const {CreateMenuTemp} = require('./components')
 const path = require('path')
-const {appSrv} = require('./server')
+const {appSrv, MasterId, syncWsM} = require('./server')
+const {getWithFile} = require('./server/utils')
 const cutWindow = require('./components/capture/main/capture')
 
 appSrv.listen(8081) // 启动服务
+let captureCfg = getWithFile('captureCfg')
 
 let win = null;
 const createWindow = () => {
@@ -25,9 +27,9 @@ const createWindow = () => {
     win = mainWindow
     Menu.setApplicationMenu(Menu.buildFromTemplate(CreateMenuTemp(mainWindow)))
     // 加载 index.html
-    mainWindow.loadURL('http://localhost:8081')
+    mainWindow.loadURL(`http://localhost:8081?masterId=${MasterId}`)
     // 打开开发工具
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
 }
 
 // 这段程序将会在 Electron 结束初始化
@@ -35,20 +37,22 @@ const createWindow = () => {
 // 部分 API 在 ready 事件触发后才能使用。
 app.whenReady().then(() => {
     createWindow()
-    cutWindow(win)
+
+    cutWindow(win, captureCfg)
     app.on('activate', () => {
         // 在 macOS 系统内, 如果没有已开启的应用窗口
         // 点击托盘图标时通常会重新创建一个新窗口
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
-    ipcMain.on('master-screen-capture', (event, url) =>{
-
+    ipcMain.on('master-screen-capture', (event, url) => {
+        console.log('screen capture', url.length)
+        syncWsM.sendMasterDevMsg('capture', url)
     })
 })
 
 // 除了 macOS 外，当所有窗口都被关闭的时候退出程序。 因此, 通常
 // 对应用程序和它们的菜单栏来说应该时刻保持激活状态,
-// 直到用户使用 Cmd + Q 明确退出
+// 直到用户使用 Cmd + Q 明确退出ß
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })

@@ -1,16 +1,24 @@
 const {kvStore, baiduTrans} = require('../utils')
-const {anySetting} = require("./index");
 
 function getSetting(req, res) {
     res.send(kvStore.val)
 }
 
 function setSetting(req, res) {
-    // content:{baiduAppid, baiduSecret, enableBaiduTrans}
-    kvStore.set(baiduTrans.baiduCfgKey,
-        new baiduTrans.baiduCfg(
-            req.body.baiduAppid, req.body.baiduSecret, req.body.enableBaiduTrans).withCfgParam())
-    global.SYNCWS.sendGroupMsg(req.body.groupId, {msgEvent: 'anySetting', cfg: req.body})
+
+    let mode = req.body.mode
+    if (mode === 'baiduCfg'){
+        let baiduCfg = req.body.baiduCfg
+        kvStore.set(baiduTrans.baiduCfgKey,
+            new baiduTrans.baiduCfg(
+                baiduCfg.baiduAppid, baiduCfg.baiduSecret, baiduCfg.enableBaiduTrans).withCfgParam())
+        global.SYNCWS.sendGroupMsg(req.body.groupId, {msgEvent: 'anySetting', cfg: req.body})
+    }
+    if (mode === 'captureCfg'){
+        let captureCfg = req.body.captureCfg
+        kvStore.set('captureCfg', captureCfg)
+    }
+
     res.send('success')
 }
 

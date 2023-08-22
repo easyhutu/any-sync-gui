@@ -59,6 +59,20 @@ class KvStore{
 
 }
 
+
+async function getWithFile(k){
+    return  await new Promise(((resolve, reject) => {
+        fs.readFile(cfgFilePath, (err, data)=>{
+            if(err){
+                console.log('read cfg err:', err)
+                reject(err)
+            }
+            resolve(JSON.parse(data.toString())[k])
+        })
+    }))
+}
+
 module.exports = {
-    kvStore: new KvStore()
+    kvStore: new KvStore(),
+    getWithFile
 }

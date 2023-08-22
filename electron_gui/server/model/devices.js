@@ -41,6 +41,16 @@ class Devices {
         return focusDev
     }
 
+    getMasterDev(){
+        let focusDev = null
+        this.devs.forEach((val)=>{
+            if(val.isMaster){
+                focusDev = val
+            }
+        })
+        return focusDev
+    }
+
     uploadEvent(devId, filename, fileHash, fileSize){
         let newDevs = []
         this.devs.forEach((val) => {
@@ -63,7 +73,7 @@ class Devices {
         this.devs = newDevs
     }
 
-    checkDev(devId, show, cate, onlineDevIds) {
+    checkDev(devId, show, cate, onlineDevIds, isMaster, groupId) {
         let isExist = false
         let newDevs = []
         let newDev = null
@@ -71,6 +81,7 @@ class Devices {
             if (devId === val.devId) {
                 isExist = true
                 val.lastTime = Date.now()
+                val.groupId = groupId
                 newDev = val
             }
 
@@ -83,7 +94,7 @@ class Devices {
             }
         })
         if (!isExist) {
-            newDev = newDevice(devId, show, cate)
+            newDev = newDevice(devId, show, cate, isMaster)
             newDevs.push(newDev)
         }
         this.devs = newDevs

@@ -13,7 +13,9 @@ const storage = multer.diskStorage({
         if (!devInfo.deviceId){
             return
         }
-        cb(null, devInfo.deviceId+'_'+req.body.filename);
+
+        let filename = req.body.filename.replace(' ', '')
+        cb(null, devInfo.deviceId+'_'+filename);
     }
 
 })
@@ -24,7 +26,7 @@ function uploadFunc(req, res, next) {
     let devInfo = getDeviceInfo(req)
     let fileInfo = req.file
     let fileHash = `dl/${fileInfo.filename}`
-    Devs.uploadEvent(devInfo.deviceId, fileInfo.originalname, fileHash, fileInfo.size)
+    Devs.uploadEvent(devInfo.deviceId, fileInfo.filename.substring(33), fileHash, fileInfo.size)
     res.send(fileHash)
 }
 

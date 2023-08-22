@@ -1,11 +1,15 @@
 const {Devs} = require('./../model')
 const {getDeviceInfo} = require('./../utils')
+const fs = require('fs')
+const path = require('path')
+const {resourcesPath} = require('./../config')
 
 const MsgType = {
     ping: 'ping',
     pingGroup: 'pingGroup',
     sync: 'sync',
-    anySetting: 'anySetting'
+    anySetting: 'anySetting',
+    capture: 'capture'
 }
 
 class SyncWsManager {
@@ -65,6 +69,26 @@ class SyncWsManager {
         })
     }
 
+
+    sendMasterDevMsg(type, msg) {
+        let dev = Devs.getMasterDev()
+        if (type === 'capture') {
+            let filename = 'any-sync-screen-capture.png'
+            fs.writeFile(
+                path.join(resourcesPath, filename),
+                new Buffer.from(msg.replace('data:image/png;base64,', ''), 'base64'),
+                (err) => {
+                    if (!err) {
+                        let fileHash = `dl/${filename}`
+                        Devs.uploadEvent(dev.devId, filename, fileHash, msg.length)
+                        this.sendMsg(dev.groupId, dev.devId, {msgEvent: MsgType.capture, fileHash: fileHash})
+                    } else {
+                        console.log('save capture err', err)
+                    }
+                })
+        }
+    }
+
     /**
      * 接收client的command请求
      * @param groupId
@@ -80,7 +104,14 @@ class SyncWsManager {
         switch (msgEvent) {
             case MsgType.ping: {
                 console.log('online devs:', Object.keys(this.clients[groupId]))
-                let devs = Devs.checkDev(devInfo.deviceId, devInfo.show, devInfo.cate, Object.keys(this.clients[groupId]))
+                let devs = Devs.checkDev(
+                    devInfo.deviceId,
+                    devInfo.show,
+                    devInfo.cate,
+                    Object.keys(this.clients[groupId]),
+                    null,
+                    groupId
+                )
 
                 this.sendMsg(groupId, devInfo.deviceId, {msgEvent: MsgType.sync, devs})
                 break

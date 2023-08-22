@@ -11,7 +11,8 @@ router.post('/translate', service.anySetting.transInfo)
 router.post('/upload', service.upload.uploadHandler.single('file'), service.upload.uploadFunc)
 
 router.get('/', function (req, res) {
-    res.redirect('/index.html')
+    let params = req.query.masterId ? `#/?masterId=${req.query.masterId}`: ''
+    res.redirect(`/index.html${params}`)
 })
 
 module.exports = {

@@ -8,8 +8,10 @@ function formatFileSize(size){
 }
 
 class Device {
-    constructor(devId, show, cate) {
+    constructor(devId, show, cate, isMaster) {
+        this.isMaster = isMaster
         this.devId = devId
+        this.groupId = null
         this.show = show
         this.cate = cate
         this.online = false
@@ -65,8 +67,8 @@ class Device {
     }
 }
 
-function newDevice(devId, show, cate) {
-    const device = new Device(devId, show, cate)
+function newDevice(devId, show, cate, isMaster) {
+    const device = new Device(devId, show, cate, isMaster)
     device.syncFile = []
     device.syncText = []
     device.uploadFiles = {}
