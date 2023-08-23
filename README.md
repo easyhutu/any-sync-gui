@@ -14,9 +14,10 @@
 
 不需要UI界面可移步 [https://github.com/easyhutu/any-sync](https://github.com/easyhutu/any-sync) 下载go二进制文件
 
-![pc端](doc/pc.png)
-![移动端](doc/phone.png)
-![设置项](doc/lang_setting.png)
+<img style="max-width: 300px" alt="pc img" src="/doc/pc.png"/>
+<img style="max-width: 300px" alt="phone img" src="/doc/phone.png"/>
+<img style="max-width: 300px" alt="setting img" src="/doc/lang_setting.png"/>
+
 ### DEV
 核心依赖： 
 * nodejs v16.19.0
