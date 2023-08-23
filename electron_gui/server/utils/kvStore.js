@@ -49,7 +49,7 @@ class KvStore{
                         return
                     }
                     this.val = JSON.parse(data.toString())
-                    console.log('load cfg', this.val)
+                    console.log('load cfg', JSON.stringify(this.val))
                 })
             }
         }catch (e) {

@@ -2,7 +2,8 @@ module.exports = {
   packagerConfig: {
     asar: true,
     extraResource:[
-        'dist'
+        'dist',
+        'public'
     ],
     icon: './public/icon'
   },

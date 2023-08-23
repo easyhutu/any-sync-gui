@@ -1,5 +1,5 @@
-const {CreateMenuTemp} = require('./menu')
+const {CreateMenuTemp, CreateTrayMenuTemp} = require('./menu')
 
 module.exports = {
-    CreateMenuTemp
+    CreateMenuTemp, CreateTrayMenuTemp
 }

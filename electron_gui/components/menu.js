@@ -1,6 +1,6 @@
-const {BrowserWindow, shell, app} = require('electron')
+const {BrowserWindow, shell} = require('electron')
 
-function CreateMenuTemp(parentWin) {
+function CreateMenuTemp(app, parentWin) {
     return [
         {
             label: "Application",
@@ -15,7 +15,7 @@ function CreateMenuTemp(parentWin) {
                     label: '设置',
                     click() {
                         var settingWin = new BrowserWindow({
-                            width: 560,
+                            width: 620,
                             height: 500,
                             title: '设置',
                             parent: parentWin,
@@ -43,7 +43,8 @@ function CreateMenuTemp(parentWin) {
                 {label: "关于", selector: "orderFrontStandardAboutPanel:"},
                 {type: "separator"},
                 {
-                    label: "Quit", accelerator: "Command+Q", click: function () {
+                    label: "退出", accelerator: "Command+Q", click: function () {
+                        parentWin.close()
                         app.quit()
                     }
                 }
@@ -65,7 +66,46 @@ function CreateMenuTemp(parentWin) {
     ]
 }
 
+function CreateTrayMenuTemp(app, parentWin) {
+    return [
+        {
+            label: '打开',
+            click() {
+                parentWin.show()
+            }
+        },
+        {
+            label: '设置',
+            click() {
+                var settingWin = new BrowserWindow({
+                    width: 620,
+                    height: 500,
+                    title: '设置',
+                    parent: parentWin,
+                    autoHideMenuBar: true
+
+                })
+
+                // 加载 index.html
+                settingWin.loadURL('http://localhost:8081/#/setting')
+                settingWin.on('close', () => {
+                    settingWin = null
+
+                })
+            }
+        },
+        {
+            label: "退出",
+            click: function () {
+                parentWin.close()
+                app.quit()
+            }
+        }
+    ]
+}
+
 
 module.exports = {
-    CreateMenuTemp
+    CreateMenuTemp,
+    CreateTrayMenuTemp
 }
