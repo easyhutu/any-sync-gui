@@ -17,18 +17,19 @@
               <b-alert variant="warning" style="text-align: left" show>
                 注意：百度翻译API初次申请会有免费500W文字的翻译额度，申请链接:<span class="user-select-all">https://fanyi-api.baidu.com</span>
               </b-alert>
-              <b-input-group size="sm" prepend="API Key" class="mb-2">
+              <b-form-group label-align="left" label-cols="3" label-cols-lg="3" label="API Key" label-for="input-default">
                 <b-form-input v-model="baiduAppid" aria-label="Small text input with custom switch"></b-form-input>
-              </b-input-group>
-              <b-input-group size="sm" prepend="Secret Key" class="mb-2">
+              </b-form-group>
+
+              <b-form-group label-align="left" label-cols="3" label-cols-lg="3" label="Secret Key" label-for="input-default">
                 <b-form-input v-model="baiduSecret" aria-label="Small text input with custom switch"></b-form-input>
-              </b-input-group>
-              <b-input-group size="sm" prepend="启用" class="mb-2">
-                <b-input-group-append is-text>
-                  <b-form-checkbox @change="clickBaiduTrans" v-model="enableBaiduTrans" switch class="mr-n2 mb-n1">
-                  </b-form-checkbox>
-                </b-input-group-append>
-              </b-input-group>
+              </b-form-group>
+
+              <b-form-group label-align="left" label-cols="3" label-cols-lg="3" label="启用" label-for="input-default">
+                <b-form-checkbox style="float: left; margin-top: 5px" @change="clickBaiduTrans" v-model="enableBaiduTrans" switch class="mr-n2 mb-n1">
+                </b-form-checkbox>
+              </b-form-group>
+
               <b-input-group>
                 <b-button @click="saveSetting('baiduCfg')" size="sm" variant="outline-info" fill>保存</b-button>
               </b-input-group>
@@ -38,25 +39,30 @@
           </b-tab>
           <b-tab title="截屏配置">
             <b-card-text>
-              <b-input-group size="sm" prepend="启用" class="mb-2">
-                <b-input-group-append is-text>
-                  <b-form-checkbox @change="clickEnableCapture" v-model="enableCapture" switch class="mr-n2 mb-n1">
-                  </b-form-checkbox>
-                </b-input-group-append>
-              </b-input-group>
+              <b-form-group label-align="left" label-cols="2" label-cols-lg="3" label="启用" label-for="input-default">
+                <b-form-checkbox style="float: left;margin-top: 5px" @change="clickEnableCapture" v-model="enableCapture" switch class="mr-n2 mb-n1">
+                </b-form-checkbox>
+              </b-form-group>
 
-              <b-badge style="float: left; margin-right: 10px; font-size: 16px; font-weight: normal" variant="light">
-                <span>快捷键</span>
-              </b-badge>
+              <b-form-group label-align="left" label-cols="2" label-cols-lg="3" label="快捷键" label-for="input-default">
+                <b-form-radio-group
+                    style="float: left"
+                    v-model="captureKey"
+                    class="mb-3"
+                >
+                  <b-form-radio style="font-weight: normal; margin-top: 5px" :value="captureKeysOptions[0].val">
+                    ALT /
+                    <b-icon icon="option"></b-icon>
+                    + S
+                  </b-form-radio>
+                  <b-form-radio style="font-weight: normal; margin-top: 5px" :value="captureKeysOptions[1].val">
+                    CTRL /
+                    <b-icon icon="command"></b-icon>
+                    + SHIFT + S
+                  </b-form-radio>
+                </b-form-radio-group>
+              </b-form-group>
 
-              <b-form-radio-group
-                  style="float: left"
-                  v-model="captureKey"
-                  :options="captureKeysOptions"
-                  class="mb-3"
-                  value-field="val"
-                  text-field="name"
-              ></b-form-radio-group>
               <b-input-group>
                 <b-button @click="saveSetting('captureCfg')" size="sm" variant="outline-info" fill>保存</b-button>
               </b-input-group>
@@ -156,7 +162,7 @@ export default {
       }).then((resp) => {
         console.log(resp)
         let msg = '配置已保存'
-        if (mode === 'captureCfg'){
+        if (mode === 'captureCfg') {
           msg = '配置已保存，需重启应用生效'
         }
         this.$bvToast.toast(msg, {

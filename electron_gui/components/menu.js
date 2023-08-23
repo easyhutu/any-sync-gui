@@ -81,14 +81,13 @@ function CreateTrayMenuTemp(app, parentWin) {
                     width: 620,
                     height: 500,
                     title: '设置',
-                    parent: parentWin,
+                    parent: null,
                     autoHideMenuBar: true
-
                 })
-
                 // 加载 index.html
                 settingWin.loadURL('http://localhost:8081/#/setting')
                 settingWin.on('close', () => {
+                    parentWin.reload()
                     settingWin = null
 
                 })
