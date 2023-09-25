@@ -1,4 +1,5 @@
 const {kvStore, baiduTrans} = require('../utils')
+const {Devs} = require("../model");
 
 function getSetting(req, res) {
     res.send(kvStore.val)
@@ -17,6 +18,10 @@ function setSetting(req, res) {
     if (mode === 'captureCfg'){
         let captureCfg = req.body.captureCfg
         kvStore.set('captureCfg', captureCfg)
+    }
+    if (mode === 'clearSync'){
+        Devs.clearSync()
+        global.SYNCWS.sendGroupMsg(req.body.groupId, {msgEvent: 'pingGroup', cfg: req.body})
     }
 
     res.send('success')

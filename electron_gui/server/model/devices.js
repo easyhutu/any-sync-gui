@@ -30,6 +30,12 @@ class Devices {
         this.devs = newDevs
     }
 
+    clearSync(){
+        this.devs.forEach((val)=>{
+            val.clearAllSync()
+        })
+    }
+
     getDev(devId){
         let focusDev = null
         this.devs.forEach((val)=>{
