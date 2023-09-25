@@ -21,7 +21,7 @@ function initTray() {
     const appTray = new Tray(trayImgPath)
     appTray.setTitle('Lan同步')
     appTray.setContextMenu(Menu.buildFromTemplate(CreateTrayMenuTemp(app, win)))
-    appTray.on('right-click', function () {
+    appTray.on('double-click', function () {
         win.show()
 
     })

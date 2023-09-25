@@ -15,7 +15,7 @@ function CreateMenuTemp(app, parentWin) {
                     label: '设置',
                     click() {
                         var settingWin = new BrowserWindow({
-                            width: 620,
+                            width: 650,
                             height: 500,
                             title: '设置',
                             parent: parentWin,
@@ -69,7 +69,7 @@ function CreateMenuTemp(app, parentWin) {
 function CreateTrayMenuTemp(app, parentWin) {
     return [
         {
-            label: '打开',
+            label: 'Lan同步',
             click() {
                 parentWin.show()
             }
@@ -78,7 +78,7 @@ function CreateTrayMenuTemp(app, parentWin) {
             label: '设置',
             click() {
                 var settingWin = new BrowserWindow({
-                    width: 620,
+                    width: 650,
                     height: 500,
                     title: '设置',
                     parent: null,
@@ -93,6 +93,7 @@ function CreateTrayMenuTemp(app, parentWin) {
                 })
             }
         },
+        {type: "separator"},
         {
             label: "退出",
             click: function () {

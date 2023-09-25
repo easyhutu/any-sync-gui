@@ -14,9 +14,10 @@
 
 不需要UI界面可移步 [https://github.com/easyhutu/any-sync](https://github.com/easyhutu/any-sync) 下载go二进制文件
 
-<img width="300" alt="" src="/doc/pc.png"/>
+<img width="360" alt="" src="/doc/pc.png"/>
 <img width="300" alt="" src="/doc/phone.png"/>
 <img width="300" alt="" src="/doc/lang_setting.png"/>
+<img width="300" alt="" src="/doc/capture.png"/>
 
 ### DEV
 核心依赖： 
