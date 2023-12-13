@@ -86,9 +86,9 @@
                     <b-tab title="系统信息">
                         <b-card-text>
                             <b-list-group style="text-align: left; font-weight: bold" flush>
-                                <b-list-group-item>特殊操作：
+                                <b-list-group-item>高级操作：
                                     <b-button @click="saveSetting(modes.clearSync)" size="sm" variant="warning">
-                                        清除所有设备的同步文件
+                                        清除缓存数据
                                     </b-button>
                                 </b-list-group-item>
                                 <b-list-group-item>缓存目录：{{ sysInfo.resource }}</b-list-group-item>
@@ -203,7 +203,7 @@ export default {
         },
         clickBaiduTrans() {
             if (this.baiduAppid && this.baiduSecret) {
-                this.saveSetting()
+                this.saveSetting(this.modes.baiduCfg)
             } else {
                 this.$bvToast.toast('启用翻译必须填写API Key、Secret Key', {
                     title: '警告',

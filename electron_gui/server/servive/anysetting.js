@@ -20,8 +20,11 @@ function setSetting(req, res) {
         kvStore.set('captureCfg', captureCfg)
     }
     if (mode === 'clearSync'){
-        Devs.clearSync()
-        global.SYNCWS.sendGroupMsg(req.body.groupId, {msgEvent: 'pingGroup', cfg: req.body})
+        Devs.clearSync(
+            ()=>{
+                global.SYNCWS.sendGroupMsg(req.body.groupId, {msgEvent: 'ping'})
+            }
+        )
     }
 
     res.send('success')

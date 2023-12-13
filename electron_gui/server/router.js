@@ -10,8 +10,11 @@ router.post('/setting', service.anySetting.setSetting)
 router.post('/translate', service.anySetting.transInfo)
 router.post('/upload', service.upload.uploadHandler.single('file'), service.upload.uploadFunc)
 
+router.get('/openapi/batchDevices', service.openApi.batchDevices)
+router.post('/openapi/openUrl', service.openApi.openUrl)
+
 router.get('/', function (req, res) {
-    let params = req.query.masterId ? `#/?masterId=${req.query.masterId}`: ''
+    let params = req.query.masterId ? `#/?masterId=${req.query.masterId}` : ''
     res.redirect(`/index.html${params}`)
 })
 

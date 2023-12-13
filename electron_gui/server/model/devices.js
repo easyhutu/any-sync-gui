@@ -1,5 +1,5 @@
 const {newDevice} = require('./device')
-const {syncTypeEum}  = require('./syncInfo')
+const {syncTypeEum} = require('./syncInfo')
 
 
 class Devices {
@@ -9,10 +9,10 @@ class Devices {
         this.pingSecond = null
     }
 
-    syncEvent(devId, syncContent){
+    syncEvent(devId, syncContent) {
         let fromDev = this.getDev(devId)
         switch (syncContent.syncType) {
-            case syncTypeEum.file:{
+            case syncTypeEum.file: {
                 let upFile = fromDev.uploadFiles[syncContent.fileHash]
                 syncContent['show'] = upFile.show
                 syncContent['fileSize'] = upFile.fileSize
@@ -21,8 +21,8 @@ class Devices {
         }
         let newDevs = []
         console.log(`fromdev:${fromDev}, content: ${syncContent}`)
-        this.devs.forEach((val)=>{
-            if(syncContent.toDevId === val.devId){
+        this.devs.forEach((val) => {
+            if (syncContent.toDevId === val.devId) {
                 val.syncDevice(fromDev, syncContent)
             }
             newDevs.push(val)
@@ -30,16 +30,17 @@ class Devices {
         this.devs = newDevs
     }
 
-    clearSync(){
-        this.devs.forEach((val)=>{
+    clearSync(call) {
+        this.devs.forEach((val) => {
             val.clearAllSync()
         })
+        call()
     }
 
-    getDev(devId){
+    getDev(devId) {
         let focusDev = null
-        this.devs.forEach((val)=>{
-            if( val.devId === devId){
+        this.devs.forEach((val) => {
+            if (val.devId === devId) {
                 focusDev = val
 
             }
@@ -47,17 +48,17 @@ class Devices {
         return focusDev
     }
 
-    getMasterDev(){
+    getMasterDev() {
         let focusDev = null
-        this.devs.forEach((val)=>{
-            if(val.isMaster){
+        this.devs.forEach((val) => {
+            if (val.isMaster) {
                 focusDev = val
             }
         })
         return focusDev
     }
 
-    uploadEvent(devId, filename, fileHash, fileSize){
+    uploadEvent(devId, filename, fileHash, fileSize) {
         let newDevs = []
         this.devs.forEach((val) => {
             if (devId === val.devId) {
@@ -69,7 +70,7 @@ class Devices {
         this.devs = newDevs
     }
 
-    delDev(devId){
+    delDev(devId) {
         let newDevs = []
         this.devs.forEach((val) => {
             if (devId !== val.devId) {
@@ -91,8 +92,8 @@ class Devices {
                 newDev = val
             }
 
-            if (Date.now()-val.lastTime-this.pingSecond*1000 < 0) {
-                if(onlineDevIds){
+            if (Date.now() - val.lastTime - this.pingSecond * 1000 < 0) {
+                if (onlineDevIds) {
                     val.online = onlineDevIds.indexOf(val.devId) !== -1;
                 }
 

@@ -9,7 +9,8 @@ const MsgType = {
     pingGroup: 'pingGroup',
     sync: 'sync',
     anySetting: 'anySetting',
-    capture: 'capture'
+    capture: 'capture',
+    openUrl: 'openUrl'
 }
 
 class SyncWsManager {
@@ -59,6 +60,7 @@ class SyncWsManager {
         console.log(`send[${devId}] msg:${JSON.stringify(msg)}`)
         if (this.clients[groupId][devId]) {
             this.clients[groupId][devId].send(JSON.stringify(msg))
+            console.log('send success')
         }
     }
 
