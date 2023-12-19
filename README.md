@@ -43,6 +43,11 @@ npm run build
 
 > electron_gui桌面应用及伴生服务初始化
 
+运行前需要先配置环境变量：
+```shell
+export NODE_ENV=debug
+```
+
 ```shell
 cd electron_gui
 
