@@ -8,21 +8,27 @@ const isDebug = process.env.NODE_ENV === 'debug'
 const MasterId = `master-${Date.now()}`
 
 global.SrvListenPort = 8081
+global.ResourceSize = 0
 
-const resourcesPath = isDebug? 'resources': path.join(process.resourcesPath, 'resources')
+const resourcesPath = isDebug ? 'resources' : path.join(process.resourcesPath, 'resources')
 
-const distPath = isDebug? 'dist': path.join(process.resourcesPath, 'dist')
+const distPath = isDebug ? 'dist' : path.join(process.resourcesPath, 'dist')
 
 console.log(`resource path ${resourcesPath}, dist path: ${distPath}`)
-kvStore.set('sysInfo', {resource: resourcesPath, dist: distPath, listenPort: global.SrvListenPort, env: process.env.NODE_ENV})
+kvStore.set('sysInfo', {
+    resource: resourcesPath,
+    dist: distPath,
+    listenPort: global.SrvListenPort,
+    env: process.env.NODE_ENV
+})
 
 try {
     if (!fs.existsSync(resourcesPath)) {
         fs.mkdirSync(resourcesPath);
-    }else {
+    } else {
         fs.readdirSync(resourcesPath).map(fileName => {
             fs.unlink(path.join(resourcesPath, fileName), err => {
-                if(err){
+                if (err) {
                     console.log('del file err', err)
                 }
             })

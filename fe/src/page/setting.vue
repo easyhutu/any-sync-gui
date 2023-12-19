@@ -91,7 +91,7 @@
                                         清除缓存数据
                                     </b-button>
                                 </b-list-group-item>
-                                <b-list-group-item>缓存目录：{{ sysInfo.resource }}</b-list-group-item>
+                                <b-list-group-item>缓存目录：{{ sysInfo.resource }} <b-badge pill variant="info">已用{{ resourceSize}}</b-badge></b-list-group-item>
                                 <b-list-group-item>监听端口：{{ sysInfo.listenPort }}</b-list-group-item>
                                 <b-list-group-item>环境：{{ sysInfo.env }}</b-list-group-item>
                                 <b-list-group-item>项目地址：https://github.com/easyhutu/any-sync-gui</b-list-group-item>
@@ -128,6 +128,7 @@ export default {
             enableCapture: false,
             captureKey: null,
             sysInfo: {},
+            resourceSize: 0,
             groupId: 1,
             dftCaptureKey: 'Alt + S',
             captureKeysOptions: [
@@ -156,6 +157,7 @@ export default {
                 let baiduCfg = resp.data.baiduCfg
                 let captureCfg = resp.data.captureCfg
                 this.sysInfo = resp.data.sysInfo
+                this.resourceSize = resp.data.resourceSize
                 if (baiduCfg) {
                     this.baiduAppid = baiduCfg.baiduAppid
                     this.baiduSecret = baiduCfg.baiduSecret

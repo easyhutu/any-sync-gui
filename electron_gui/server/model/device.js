@@ -22,6 +22,7 @@ class Device {
     }
 
     addFile(filename, fileHash, fileSize) {
+        global.ResourceSize += fileSize
         this.uploadFiles[fileHash] = new SyncDetail(filename, fileHash, null, formatFileSize(fileSize))
     }
 
@@ -84,5 +85,5 @@ function newDevice(devId, show, cate, isMaster) {
 
 
 module.exports = {
-    newDevice
+    newDevice, formatFileSize
 }
