@@ -31,6 +31,9 @@ class Devices {
     }
 
     clearSync(call) {
+        this.devs = this.devs.filter((val) => {
+            return val.online
+        })
         this.devs.forEach((val) => {
             val.clearAllSync()
         })
