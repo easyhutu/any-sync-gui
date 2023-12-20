@@ -1,10 +1,10 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const {app, BrowserWindow, Menu, ipcMain, Tray} = require('electron')
+const {app, BrowserWindow, Menu, ipcMain, Tray, dialog, ipcRenderer} = require('electron')
 const {CreateMenuTemp, CreateTrayMenuTemp} = require('./components')
 const path = require('path')
-const {appSrv, MasterId, syncWsM} = require('./server')
+const {appSrv, MasterId, syncWsM, ipcRemoteFunc} = require('./server')
 const {getWithFile} = require('./server/utils')
 const cutWindow = require('./components/capture/main/capture')
 
@@ -14,6 +14,7 @@ let captureCfg = getWithFile('captureCfg')
 
 var win = null;
 let willQuitApp = false
+var saveUrl = null
 
 function initTray() {
     let imgPath = './public/icons.iconset/icon_16x16.png'
@@ -75,6 +76,60 @@ app.whenReady().then(() => {
     ipcMain.on('master-screen-capture', (event, url) => {
         console.log('screen capture', url.length)
         syncWsM.sendMasterDevMsg('capture', url)
+    })
+
+    ipcRemoteFunc.registerFunc((url) => {
+        dialog.showOpenDialog(
+            {
+                properties: ['openFile', 'openDirectory'],
+            },
+        ).then((value) => {
+            saveUrl = value.filePaths[0]
+            console.log(value.filePaths)
+            if (!saveUrl) {
+                return
+            }
+            console.log(url)
+            win.webContents.downloadURL(url) // 触发 will-download 事件
+        })
+    })
+    win.webContents.session.on('will-download', (e, item) => {
+        const filePath = path.join(saveUrl, item.getFilename())
+        item.setSavePath(filePath)
+        //监听下载过程，计算并设置进度条进度
+        item.on('updated', (evt, state) => {
+            if ('progressing' === state) {
+                //此处  用接收到的字节数和总字节数求一个比例  就是进度百分比
+                let progressInt = 0
+                if (item.getReceivedBytes() && item.getTotalBytes()) {
+                    progressInt = parseInt(100 * (item.getReceivedBytes() / item.getTotalBytes()))
+                }
+                // 把百分比发给渲染进程进行展示
+                win.webContents.send('updateProgressing', progressInt)
+                // mac 程序坞、windows 任务栏显示进度
+                win.setProgressBar(progressInt)
+            }
+        })
+        //监听下载结束事件
+        item.on('done', (e, state) => {
+            //如果窗口还在的话，去掉进度条
+            if (!win.isDestroyed()) {
+                win.setProgressBar(-1)
+            }
+            //下载被取消或中断了
+            if (state === 'interrupted') {
+                dialog.showErrorBox(
+                    '下载失败',
+                    `文件 ${item.getFilename()} 因为某些原因被中断下载`
+                )
+            }
+            // 下载成功后打开文件所在文件夹
+            if (state === 'completed') {
+                console.log('download completed')
+                dialog.showMessageBox(win, {message:"下载成功^_^"}).then(value => {
+                })
+            }
+        })
     })
 })
 

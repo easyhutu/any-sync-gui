@@ -9,6 +9,7 @@ router.get('/setting', service.anySetting.getSetting)
 router.post('/setting', service.anySetting.setSetting)
 router.post('/translate', service.anySetting.transInfo)
 router.post('/upload', service.upload.uploadHandler.single('file'), service.upload.uploadFunc)
+router.post('/download/master', service.upload.downloadFileMaster)
 
 router.get('/openapi/batchDevices', service.openApi.batchDevices)
 router.post('/openapi/openUrl', service.openApi.openUrl)

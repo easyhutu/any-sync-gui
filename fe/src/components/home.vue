@@ -150,7 +150,11 @@
                                         <b-icon icon="image-fill"></b-icon>
                                     </div>
                                     <div class="file-show-link" style="float: left; width: 50%">
-                                        <a download :href="genUrl('/'+syncDetail.fileHash)">
+                                        <a v-if="dev.isMaster" href="javascript:void(0)"
+                                           @click="clickDownloadEvent(genUrl('/'+syncDetail.fileHash))">
+                                            {{ syncDetail.show }}
+                                        </a>
+                                        <a v-else download :href="genUrl('/'+syncDetail.fileHash)">
                                             {{ syncDetail.show }}
                                         </a>
                                     </div>
@@ -182,8 +186,12 @@
                            thumbnail fluid :src="previewDetail.url" :alt="previewDetail.ext"></b-img>
                     <video class="show-col" controls autoplay :src="previewDetail.url"
                            v-show="showPreviewCd()==='video'"></video>
-                    <a v-show="showPreviewCd()==='other'" :href="previewDetail.url"
+                    <a v-show="showPreviewCd()==='other' && !dev.isMaster" :href="previewDetail.url"
                        download>文件类型不支持预览，点击下载</a>
+                    <a v-show="showPreviewCd()==='other' && dev.isMaster" href="javascript:void(0)"
+                       @click="clickDownloadEvent(genUrl('/'+syncDetail.fileHash))">
+                        文件类型不支持预览，点击下载
+                    </a>
                 </div>
             </b-modal>
 
@@ -295,6 +303,13 @@ export default {
         },
     },
     methods: {
+        clickDownloadEvent(url) {
+            this.$http.post(this.genUrl('/download/master'), {
+                url: url
+            }).then((resp) => {
+                console.log(resp)
+            })
+        },
         clearSyncCache() {
             this.$http.post(this.settingUrl, {
                 mode: 'clearSync',

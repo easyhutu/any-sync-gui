@@ -5,13 +5,13 @@ const urlencode = require('urlencode')
 const {router} = require('./router')
 const {syncWSMng} = require('./servive')
 const {basename} = require('path')
-const {resourcesPath, distPath, MasterId} = require('./config')
+const {resourcesPath, distPath, MasterId, ipcRemoteFunc} = require('./config')
 
 const appSrv = express()
 
 function handleExpress(req, res, next) {
     res.set('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Headers','Content-Type, Accept')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept')
 
     next()
 }
@@ -26,7 +26,7 @@ appSrv.use(handleExpress)
 appSrv.use(router)
 
 
-appSrv.use('/dl',express.static(resourcesPath, {
+appSrv.use('/dl', express.static(resourcesPath, {
     setHeaders: (res, p) => {
         res.set('Content-Type', 'application/octet-tream')
         let realName = basename(p).substring(33)
@@ -42,5 +42,5 @@ syncWsM.listenClientConnect()
 global.SYNCWS = syncWsM
 
 module.exports = {
-    appSrv, MasterId, syncWsM
+    appSrv, MasterId, syncWsM, ipcRemoteFunc
 }

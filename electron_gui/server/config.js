@@ -38,6 +38,22 @@ try {
     console.error('resources path err:', err);
 }
 
+class IpcWithRemote {
+    constructor() {
+        this.ipcRender = null
+    }
+
+    registerFunc(func) {
+        this.ipcRender = func
+    }
+
+    doFunc(arg) {
+        this.ipcRender(arg)
+    }
+}
+
+const ipcRemoteFunc = new IpcWithRemote()
+
 module.exports = {
-    resourcesPath, distPath, MasterId
+    resourcesPath, distPath, MasterId, ipcRemoteFunc
 }
