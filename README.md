@@ -1,4 +1,4 @@
-## any-sync-gui
+## ANY SYNC GUI
 
 ### 跨平台局域网同步工具
 
