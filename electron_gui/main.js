@@ -1,11 +1,11 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const {app, BrowserWindow, Menu, ipcMain, Tray, dialog, ipcRenderer} = require('electron')
+const {app, BrowserWindow, Menu, ipcMain, Tray, dialog, shell} = require('electron')
 const {CreateMenuTemp, CreateTrayMenuTemp} = require('./components')
 const path = require('path')
 const {appSrv, MasterId, syncWsM, ipcRemoteFunc} = require('./server')
-const {getWithFile} = require('./server/utils')
+const {getWithFile, kvStore} = require('./server/utils')
 const cutWindow = require('./components/capture/main/capture')
 
 appSrv.listen(8081) // 启动服务
@@ -47,7 +47,7 @@ const createWindow = () => {
     // 加载 index.html
     win.loadURL(`http://localhost:8081?masterId=${MasterId}`)
     // 打开开发工具
-    // mainWindow.webContents.openDevTools()
+    // win.webContents.openDevTools()
 
     win.on('close', event => {
         console.log('win close')
@@ -126,7 +126,14 @@ app.whenReady().then(() => {
             // 下载成功后打开文件所在文件夹
             if (state === 'completed') {
                 console.log('download completed')
-                dialog.showMessageBox(win, {message:"下载成功^_^"}).then(value => {
+                dialog.showMessageBox(win, {message: "下载成功^_^"}).then(value => {
+                    console.log(kvStore.get('electronCfg'))
+                    if(kvStore.get('electronCfg')){
+                        if (kvStore.get('electronCfg').enableAutoOpenFolder) {
+                            shell.showItemInFolder(filePath)
+                        }
+                    }
+
                 })
             }
         })

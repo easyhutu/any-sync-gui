@@ -28,7 +28,6 @@ appSrv.use(router)
 
 appSrv.use('/dl', express.static(resourcesPath, {
     setHeaders: (res, p) => {
-        res.set('Content-Type', 'application/octet-tream')
         let realName = basename(p).substring(33)
         res.set('Content-disposition', `attachment;filename=${urlencode(realName)}`)
     }

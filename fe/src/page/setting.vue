@@ -83,15 +83,37 @@
                             </b-input-group>
                         </b-card-text>
                     </b-tab>
+                    <b-tab title="其他设置">
+                        <b-card-text>
+
+                            <b-form-group label-align="left" label-cols="4" label-cols-lg="5" label="自动打开文件夹"
+                                          label-for="input-default">
+                                <b-form-checkbox style="float: left;margin-top: 5px" @change="clickEnableAutoOpenFolder"
+                                                 v-model="enableAutoOpenFolder" switch class="mr-n2 mb-n1">
+                                    <b-icon id="tooltip-cfg-1" variant="info" icon="question-circle"></b-icon>
+                                    <b-tooltip target="tooltip-cfg-1" triggers="hover">
+                                        当下载完成后自动打开下载文件夹
+                                    </b-tooltip>
+                                </b-form-checkbox>
+                            </b-form-group>
+
+                            <b-form-group label-align="left" label-cols="4" label-cols-lg="5" label="缓存"
+                                          label-for="input-default">
+                                <b-button style="float: left" class="mr-n2 mb-n1" pill
+                                          @click="saveSetting(modes.clearSync)" size="sm" variant="warning">
+                                    清除缓存数据
+                                </b-button>
+                            </b-form-group>
+
+
+                        </b-card-text>
+                    </b-tab>
                     <b-tab title="系统信息">
                         <b-card-text>
                             <b-list-group style="text-align: left; font-weight: bold" flush>
-                                <b-list-group-item>高级操作：
-                                    <b-button @click="saveSetting(modes.clearSync)" size="sm" variant="warning">
-                                        清除缓存数据
-                                    </b-button>
+                                <b-list-group-item>缓存目录：{{ sysInfo.resource }}
+                                    <b-badge pill variant="info">已用{{ resourceSize }}</b-badge>
                                 </b-list-group-item>
-                                <b-list-group-item>缓存目录：{{ sysInfo.resource }} <b-badge pill variant="info">已用{{ resourceSize}}</b-badge></b-list-group-item>
                                 <b-list-group-item>监听端口：{{ sysInfo.listenPort }}</b-list-group-item>
                                 <b-list-group-item>环境：{{ sysInfo.env }}</b-list-group-item>
                                 <b-list-group-item>项目地址：https://github.com/easyhutu/any-sync-gui</b-list-group-item>
@@ -126,6 +148,7 @@ export default {
             baiduSecret: null,
             enableBaiduTrans: false,
             enableCapture: false,
+            enableAutoOpenFolder: false,
             captureKey: null,
             sysInfo: {},
             resourceSize: 0,
@@ -151,11 +174,15 @@ export default {
         clickEnableCapture() {
             this.saveSetting('captureCfg')
         },
+        clickEnableAutoOpenFolder() {
+            this.saveSetting('electronCfg')
+        },
         getSetting() {
             this.$http.get(this.settingUrl).then((resp) => {
                 console.log(resp.data)
                 let baiduCfg = resp.data.baiduCfg
                 let captureCfg = resp.data.captureCfg
+                let electronCfg = resp.data.electronCfg
                 this.sysInfo = resp.data.sysInfo
                 this.resourceSize = resp.data.resourceSize
                 if (baiduCfg) {
@@ -168,6 +195,9 @@ export default {
                     this.enableCapture = captureCfg.enableCapture
                 } else {
                     this.captureKey = this.dftCaptureKey
+                }
+                if (electronCfg) {
+                    this.enableAutoOpenFolder = electronCfg.enableAutoOpenFolder
                 }
             })
         },
@@ -183,6 +213,9 @@ export default {
                 captureCfg: {
                     enableCapture: this.enableCapture,
                     captureKey: this.captureKey
+                },
+                electronCfg: {
+                    enableAutoOpenFolder: this.enableAutoOpenFolder
                 }
 
 

@@ -81,9 +81,12 @@
                             <span style="float: right; font-size: xx-small">{{ formatTime(syncCard.syncTime) }}</span>
                         </b-card-sub-title>
                         <b-card-text style="margin-top: 8px">
-                            <p v-show="!enableTranslate">
-                                {{ syncCard.syncDetails[0].content }}
-                            </p>
+                            <div style="white-space: pre-wrap">
+                                <span v-show="!enableTranslate">
+                                    {{ syncCard.syncDetails[0].content }}
+                                </span>
+                            </div>
+
                             <a class="user-select-all" v-show="enableTranslate" @click="clickTranslate"
                                style="color: #1d2124;text-decoration: none" :id="'popover'+idx"
                                href="javascript:void(0)">{{ syncCard.syncDetails[0].content }}</a>
@@ -180,9 +183,12 @@
             </b-row>
 
             <b-modal scrollable size="xl" hide-footer v-model="showPreviewModal">
-                <p>{{ previewDetail.name }}</p>
+                <span>{{ previewDetail.name }}</span>
+                <b-button size="sm" style="float: right" variant="success" @click="copyImg"
+                          v-show="showPreviewCd()==='img' && dev.isMaster">复制图片
+                </b-button>
                 <div style="text-align: center" class="d-block text-center show-container">
-                    <b-img class="show-col" v-show="showPreviewCd()==='img'"
+                    <b-img id="preImg" class="show-col" v-show="showPreviewCd()==='img'"
                            thumbnail fluid :src="previewDetail.url" :alt="previewDetail.ext"></b-img>
                     <video class="show-col" controls autoplay :src="previewDetail.url"
                            v-show="showPreviewCd()==='video'"></video>
@@ -193,6 +199,8 @@
                         文件类型不支持预览，点击下载
                     </a>
                 </div>
+                <template
+                ></template>
             </b-modal>
 
             <b-modal title="屏幕截图" scrollable size="xl" hide-footer v-model="showCaptureModal">
@@ -303,6 +311,61 @@ export default {
         },
     },
     methods: {
+        // 剪切板复制只支持image/png图片，如果是其他格式需要先试用canvas绘制转化成png，清晰度会更差
+        copyImg() {
+            let imgEle = document.getElementById('preImg')
+            console.log(imgEle.src)
+            let xxhr = new XMLHttpRequest()
+            xxhr.open('GET', imgEle.src)
+            xxhr.responseType = 'blob'
+            xxhr.onload = () => {
+                if (xxhr.readyState === 4 && xxhr.status === 200) {
+                    console.log(xxhr.response)
+                    let resp = xxhr.response
+                    if (resp.type === 'image/png') {
+                        let data = new ClipboardItem({[resp.type]: resp})
+                        navigator.clipboard.write([data]).then(() => {
+                            this.$bvToast.toast('复制成功', {
+                                title: '提示',
+                                variant: 'info',
+                                solid: true,
+                                autoHideDelay: 2000,
+                            })
+                        }).catch(err => {
+                            alert(err)
+                        })
+                    } else {
+                        let canvas = document.createElement('canvas');
+                        canvas.width = imgEle.width;
+                        canvas.height = imgEle.height;
+                        // canvas绘制上下文
+                        let context = canvas.getContext('2d');
+                        // 图片绘制
+                        context.drawImage(imgEle, 0, 0, imgEle.width, imgEle.height);
+                        // 转为Blob数据
+                        canvas.toBlob(blob => {
+                            // 使用剪切板API进行复制
+                            const data = [new ClipboardItem({
+                                ['image/png']: blob
+                            })];
+
+                            navigator.clipboard.write(data).then(() => {
+                                this.$bvToast.toast('复制成功', {
+                                    title: '提示',
+                                    variant: 'info',
+                                    solid: true,
+                                    autoHideDelay: 2000,
+                                })
+                            }, function (err) {
+                                alert(err)
+                            });
+                        });
+                    }
+
+                }
+            }
+            xxhr.send()
+        },
         clickDownloadEvent(url) {
             this.$http.post(this.genUrl('/download/master'), {
                 url: url

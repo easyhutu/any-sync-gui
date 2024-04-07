@@ -21,6 +21,10 @@ function setSetting(req, res) {
         let captureCfg = req.body.captureCfg
         kvStore.set('captureCfg', captureCfg)
     }
+    if (mode === 'electronCfg') {
+        let electronCfg = req.body.electronCfg
+        kvStore.set('electronCfg', electronCfg)
+    }
     if (mode === 'clearSync') {
         Devs.clearSync(
             () => {
