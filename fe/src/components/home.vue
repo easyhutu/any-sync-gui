@@ -311,7 +311,7 @@ export default {
         },
     },
     methods: {
-        // 剪切板复制只支持image/png图片，如果是其他格式需要先试用canvas绘制转化成png，清晰度会更差
+        // 剪切板复制只支持image/png图片，如果是其他格式需要先试用canvas绘制转化成png
         copyImg() {
             let imgEle = document.getElementById('preImg')
             console.log(imgEle.src)
@@ -335,31 +335,35 @@ export default {
                             alert(err)
                         })
                     } else {
-                        let canvas = document.createElement('canvas');
-                        canvas.width = imgEle.width;
-                        canvas.height = imgEle.height;
-                        // canvas绘制上下文
-                        let context = canvas.getContext('2d');
-                        // 图片绘制
-                        context.drawImage(imgEle, 0, 0, imgEle.width, imgEle.height);
-                        // 转为Blob数据
-                        canvas.toBlob(blob => {
-                            // 使用剪切板API进行复制
-                            const data = [new ClipboardItem({
-                                ['image/png']: blob
-                            })];
+                        createImageBitmap(xxhr.response).then((imageBitmap)=>{
+                            console.log(imageBitmap.height, imageBitmap.width)
+                            let canvas = document.createElement('canvas');
+                            canvas.width = imageBitmap.width
+                            canvas.height = imageBitmap.height
+                            // canvas绘制上下文
+                            let context = canvas.getContext('2d');
+                            // 图片绘制
+                            context.drawImage(imageBitmap, 0, 0);
+                            // 转为Blob数据
+                            canvas.toBlob(blob => {
+                                // 使用剪切板API进行复制
+                                const data = [new ClipboardItem({
+                                    ['image/png']: blob
+                                })];
 
-                            navigator.clipboard.write(data).then(() => {
-                                this.$bvToast.toast('复制成功', {
-                                    title: '提示',
-                                    variant: 'info',
-                                    solid: true,
-                                    autoHideDelay: 2000,
-                                })
-                            }, function (err) {
-                                alert(err)
+                                navigator.clipboard.write(data).then(() => {
+                                    this.$bvToast.toast('复制成功', {
+                                        title: '提示',
+                                        variant: 'info',
+                                        solid: true,
+                                        autoHideDelay: 2000,
+                                    })
+                                }, function (err) {
+                                    alert(err)
+                                });
                             });
-                        });
+                        })
+
                     }
 
                 }
