@@ -99,6 +99,8 @@ class Devices {
                 if (onlineDevIds) {
                     val.online = onlineDevIds.indexOf(val.devId) !== -1;
                 }
+            } else {
+                val.online = false
             }
             newDevs.push(val)
         })
