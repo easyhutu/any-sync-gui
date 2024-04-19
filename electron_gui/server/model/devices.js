@@ -20,7 +20,7 @@ class Devices {
             }
         }
         let newDevs = []
-        console.log(`fromdev:${fromDev}, content: ${syncContent}`)
+        console.log(`fromDev:${fromDev}, content: ${syncContent}`)
         this.devs.forEach((val) => {
             if (syncContent.toDevId === val.devId) {
                 val.syncDevice(fromDev, syncContent)
@@ -92,16 +92,15 @@ class Devices {
                 isExist = true
                 val.lastTime = Date.now()
                 val.groupId = groupId
+                val.online = true
                 newDev = val
             }
-
             if (Date.now() - val.lastTime - this.pingSecond * 1000 < 0) {
                 if (onlineDevIds) {
                     val.online = onlineDevIds.indexOf(val.devId) !== -1;
                 }
-
-                newDevs.push(val)
             }
+            newDevs.push(val)
         })
         if (!isExist) {
             newDev = newDevice(devId, show, cate, isMaster)
