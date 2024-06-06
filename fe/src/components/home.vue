@@ -78,7 +78,16 @@
                             <b-icon variant="primary" icon="messenger"></b-icon>
                             &nbsp;
                             <span style="font-size: 14px">{{ syncCard.fromShow }}</span>
-                            <span style="float: right; font-size: xx-small">{{ formatTime(syncCard.syncTime) }}</span>
+                            <span style="float: right; font-size: xx-small">
+                                <b-badge href="javascript:void(0)"
+                                         :id="'C'+idx"
+                                         :data-clipboard-text="syncCard.syncDetails[0].content"
+                                         @click="copyText('C'+idx)"
+                                         variant="light">
+                                    <b-icon variant="info" font-scale="2" icon="clipboard"></b-icon>
+                                </b-badge>
+
+                                {{ formatTime(syncCard.syncTime) }}</span>
                         </b-card-sub-title>
                         <b-card-text style="margin-top: 8px">
                             <div style="white-space: pre-wrap">
@@ -231,6 +240,7 @@
 
 <script>
 import QrCodeComponent from './qrCode.vue'
+import ClipboardJS from "clipboard";
 
 export default {
     name: 'HomeComponent',
@@ -311,6 +321,23 @@ export default {
         },
     },
     methods: {
+        copyText(domId) {
+            let clipboard = new ClipboardJS('#'+domId)
+            clipboard.on('success', () => {
+                this.$bvToast.toast('复制成功', {
+                    title: '提示',
+                    variant: 'info',
+                    solid: true,
+                    autoHideDelay: 2000,
+                })
+                clipboard.destroy();
+            });
+            clipboard.on('error', e => {
+                console.log(e)
+                alert('该浏览器不支持自动复制!');
+                clipboard.destroy();
+            });
+        },
         // 剪切板复制只支持image/png图片，如果是其他格式需要先试用canvas绘制转化成png
         copyImg() {
             let imgEle = document.getElementById('preImg')
@@ -335,7 +362,7 @@ export default {
                             alert(err)
                         })
                     } else {
-                        createImageBitmap(xxhr.response).then((imageBitmap)=>{
+                        createImageBitmap(xxhr.response).then((imageBitmap) => {
                             console.log(imageBitmap.height, imageBitmap.width)
                             let canvas = document.createElement('canvas');
                             canvas.width = imageBitmap.width
