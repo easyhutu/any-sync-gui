@@ -39,7 +39,6 @@ function getLocalDeviceIp() {
             list.forEach(value => {
                 if(value.family === 'IPv4' && value.address !== '127.0.0.1' && !value.internal){
                     ip = value.address
-                    throw null
                 }
             })
         })
