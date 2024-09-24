@@ -1,7 +1,7 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const {app, BrowserWindow, Menu, ipcMain, Tray, dialog, shell} = require('electron')
+const {app, BrowserWindow, Menu, ipcMain, Tray, dialog, shell, ipcRenderer} = require('electron')
 const {CreateMenuTemp, CreateTrayMenuTemp} = require('./components')
 const path = require('path')
 const {appSrv, MasterId, syncWsM, ipcRemoteFunc} = require('./server')
@@ -15,6 +15,7 @@ let captureCfg = getWithFile('captureCfg')
 var win = null;
 let willQuitApp = false
 var saveUrl = null
+var sysCfg = Object.create(kvStore.val)
 
 function initTray() {
     let imgPath = './public/icons.iconset/icon_16x16.png'
@@ -78,6 +79,11 @@ app.whenReady().then(() => {
         syncWsM.sendMasterDevMsg('capture', url)
     })
 
+    ipcMain.on('saveSetting', (event, data) => {
+        console.log('save setting:', data)
+        sysCfg = data
+    })
+
     ipcRemoteFunc.registerFunc((url) => {
         dialog.showOpenDialog(
             {
@@ -102,7 +108,7 @@ app.whenReady().then(() => {
                 //此处  用接收到的字节数和总字节数求一个比例  就是进度百分比
                 let progressInt = 0
                 if (item.getReceivedBytes() && item.getTotalBytes()) {
-                    progressInt = parseInt(100 * (item.getReceivedBytes() / item.getTotalBytes()))
+                    progressInt = 100 * (item.getReceivedBytes() / item.getTotalBytes())
                 }
                 // 把百分比发给渲染进程进行展示
                 win.webContents.send('updateProgressing', progressInt)
@@ -127,9 +133,8 @@ app.whenReady().then(() => {
             if (state === 'completed') {
                 console.log('download completed')
                 dialog.showMessageBox(win, {message: "下载成功^_^"}).then(value => {
-                    console.log(kvStore.get('electronCfg'))
-                    if(kvStore.get('electronCfg')){
-                        if (kvStore.get('electronCfg').enableAutoOpenFolder) {
+                    if (sysCfg.electronCfg) {
+                        if (sysCfg.electronCfg.enableAutoOpenFolder) {
                             shell.showItemInFolder(filePath)
                         }
                     }

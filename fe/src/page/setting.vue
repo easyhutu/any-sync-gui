@@ -96,6 +96,14 @@
                                     </b-tooltip>
                                 </b-form-checkbox>
                             </b-form-group>
+                            <b-form-group label-align="left" label-cols="4" label-cols-lg="5"
+                                          label="最大文本记录数量"
+                                          label-for="input-default">
+                                <b-form-select @change="saveSetting(modes.sysCfg)" style="width: 80px; float: left"
+                                               v-model="textHistoryMaxSize"
+                                               :options="textMaxOptions"></b-form-select>
+
+                            </b-form-group>
 
                             <b-form-group label-align="left" label-cols="4" label-cols-lg="5" label="缓存"
                                           label-for="input-default">
@@ -142,8 +150,9 @@ export default {
                 clearSync: 'clearSync',
                 captureCfg: 'captureCfg',
                 baiduCfg: 'baiduCfg',
+                sysCfg: 'sysCfg'
             },
-            settingUrl: `http://${window.location.hostname}:8081/setting`,
+            settingUrl: `http://127.0.0.1:8081/setting`,
             baiduAppid: null,
             baiduSecret: null,
             enableBaiduTrans: false,
@@ -151,6 +160,7 @@ export default {
             enableAutoOpenFolder: false,
             captureKey: null,
             sysInfo: {},
+            textHistoryMaxSize: 20,
             resourceSize: 0,
             groupId: 1,
             dftCaptureKey: 'Alt + S',
@@ -163,6 +173,12 @@ export default {
                     val: 'CommandOrControl + Shift + S',
                     name: 'CTRL/⌘ + SHIFT + S',
                 }
+            ],
+            textMaxOptions: [
+                {text: '10', value: 10},
+                {text: '20', value: 20},
+                {text: '30', value: 30},
+                {text: '50', value: 50}
             ]
         }
     },
@@ -183,6 +199,7 @@ export default {
                 let baiduCfg = resp.data.baiduCfg
                 let captureCfg = resp.data.captureCfg
                 let electronCfg = resp.data.electronCfg
+                let sysCfg = resp.data.sysCfg
                 this.sysInfo = resp.data.sysInfo
                 this.resourceSize = resp.data.resourceSize
                 if (baiduCfg) {
@@ -199,10 +216,13 @@ export default {
                 if (electronCfg) {
                     this.enableAutoOpenFolder = electronCfg.enableAutoOpenFolder
                 }
+                if (sysCfg) {
+                    this.textHistoryMaxSize = sysCfg.textHistoryMaxSize
+                }
             })
         },
         saveSetting(mode) {
-            this.$http.post(this.settingUrl, {
+            let cfg = {
                 mode: mode,
                 groupId: this.groupId,
                 baiduCfg: {
@@ -216,10 +236,19 @@ export default {
                 },
                 electronCfg: {
                     enableAutoOpenFolder: this.enableAutoOpenFolder
+                },
+                sysCfg: {
+                    textHistoryMaxSize: this.textHistoryMaxSize
                 }
 
 
-            }).then((resp) => {
+            }
+            try {
+                window.ipc.send('saveSetting', cfg)
+            } catch (e) {
+                console.log('ipc send error', e)
+            }
+            this.$http.post(this.settingUrl, cfg).then((resp) => {
                 console.log(resp)
                 let msg = '配置已保存'
                 if (mode === this.modes.captureCfg) {

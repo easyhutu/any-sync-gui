@@ -9,6 +9,15 @@ const MasterId = `master-${Date.now()}`
 
 global.SrvListenPort = 8081
 global.ResourceSize = 0
+if (kvStore.get('sysCfg') && kvStore.get('sysCfg').textHistoryMaxSize) {
+    global.TextHistoryMaxSize = kvStore.get('sysCfg').textHistoryMaxSize
+} else {
+    kvStore.setAndUpdate('sysCfg', {
+        textHistoryMaxSize: 20
+    })
+    global.TextHistoryMaxSize = 20
+}
+
 
 const resourcesPath = isDebug ? 'resources' : path.join(process.resourcesPath, 'resources')
 

@@ -1,4 +1,5 @@
 const {BrowserWindow, shell} = require('electron')
+const path = require('path')
 
 function CreateMenuTemp(app, parentWin) {
     return [
@@ -19,12 +20,22 @@ function CreateMenuTemp(app, parentWin) {
                             height: 500,
                             title: '设置',
                             parent: parentWin,
-                            autoHideMenuBar: true
+                            autoHideMenuBar: true,
+                            webPreferences: {
+                                preload: path.join(__dirname, 'preload.js'),
+                                // 允许html中运行nodejs
+                                nodeIntegration: true
+                            }
 
                         })
 
                         // 加载 index.html
-                        settingWin.loadURL('http://localhost:8081/#/setting')
+                        let settingURl = `file://${path.resolve(__dirname, '../dist/index.html#/setting')}`
+                        console.log(settingURl)
+                        settingWin.loadURL(settingURl)
+
+                        // settingWin.webContents.openDevTools()
+
                         settingWin.on('close', () => {
                             parentWin.reload()
                             parentWin.focus()
@@ -81,13 +92,26 @@ function CreateTrayMenuTemp(app, parentWin) {
                     width: 650,
                     height: 500,
                     title: '设置',
-                    parent: null,
-                    autoHideMenuBar: true
+                    parent: parentWin,
+                    autoHideMenuBar: true,
+                    webPreferences: {
+                        preload: path.join(__dirname, 'preload.js'),
+                        // 允许html中运行nodejs
+                        nodeIntegration: true
+                    }
+
                 })
+
                 // 加载 index.html
-                settingWin.loadURL('http://localhost:8081/#/setting')
+                let settingURl = `file://${path.resolve(__dirname, '../dist/index.html#/setting')}`
+                console.log(settingURl)
+                settingWin.loadURL(settingURl)
+
+                // settingWin.webContents.openDevTools()
+
                 settingWin.on('close', () => {
                     parentWin.reload()
+                    parentWin.focus()
                     settingWin = null
 
                 })

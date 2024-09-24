@@ -12,18 +12,18 @@ function setSetting(req, res) {
     let mode = req.body.mode
     if (mode === 'baiduCfg') {
         let baiduCfg = req.body.baiduCfg
-        kvStore.set(baiduTrans.baiduCfgKey,
+        kvStore.setAndUpdate(baiduTrans.baiduCfgKey,
             new baiduTrans.baiduCfg(
                 baiduCfg.baiduAppid, baiduCfg.baiduSecret, baiduCfg.enableBaiduTrans).withCfgParam())
         global.SYNCWS.sendGroupMsg(req.body.groupId, {msgEvent: 'anySetting', cfg: req.body})
     }
     if (mode === 'captureCfg') {
         let captureCfg = req.body.captureCfg
-        kvStore.set('captureCfg', captureCfg)
+        kvStore.setAndUpdate('captureCfg', captureCfg)
     }
     if (mode === 'electronCfg') {
         let electronCfg = req.body.electronCfg
-        kvStore.set('electronCfg', electronCfg)
+        kvStore.setAndUpdate('electronCfg', electronCfg)
     }
     if (mode === 'clearSync') {
         Devs.clearSync(
@@ -31,6 +31,13 @@ function setSetting(req, res) {
                 global.SYNCWS.sendGroupMsg(req.body.groupId, {msgEvent: 'ping'})
             }
         )
+    }
+    if (mode === 'sysCfg') {
+        let sysCfg = req.body.sysCfg
+        kvStore.setAndUpdate('sysCfg', sysCfg)
+        if (sysCfg.textHistoryMaxSize) {
+            global.TextHistoryMaxSize = parseInt(sysCfg.textHistoryMaxSize)
+        }
     }
 
     res.send('success')

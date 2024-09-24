@@ -80,8 +80,15 @@
                             <span style="font-size: 14px">{{ syncCard.fromShow }}</span>
                             <span style="float: right; font-size: xx-small">
                                 <b-badge href="javascript:void(0)"
+                                         @click="showHistoryTextModalEvent(syncCard)"
+                                         variant="light">
+                                    <b-icon variant="info" font-scale="2" icon="clock-history"></b-icon>
+
+                                </b-badge>
+                                &nbsp;
+                                <b-badge href="javascript:void(0)"
                                          :id="'C'+idx"
-                                         :data-clipboard-text="syncCard.syncDetails[0].content"
+                                         :data-clipboard-text="syncCard.syncDetails[syncCard.syncDetails.length-1].content"
                                          @click="copyText('C'+idx)"
                                          variant="light">
                                     <b-icon variant="info" font-scale="2" icon="clipboard"></b-icon>
@@ -92,13 +99,15 @@
                         <b-card-text style="margin-top: 8px">
                             <div style="white-space: pre-wrap">
                                 <span v-show="!enableTranslate">
-                                    {{ syncCard.syncDetails[0].content }}
+                                    {{ syncCard.syncDetails[syncCard.syncDetails.length - 1].content }}
                                 </span>
                             </div>
 
                             <a class="user-select-all" v-show="enableTranslate" @click="clickTranslate"
                                style="color: #1d2124;text-decoration: none" :id="'popover'+idx"
-                               href="javascript:void(0)">{{ syncCard.syncDetails[0].content }}</a>
+                               href="javascript:void(0)">{{
+                                syncCard.syncDetails[syncCard.syncDetails.length - 1].content
+                                }}</a>
                             <div>
                                 <b-popover v-if="enableTranslate" :target="'popover'+idx" placement="top"
                                            triggers="focus">
@@ -190,7 +199,17 @@
                     </b-card>
                 </b-col>
             </b-row>
+            <b-modal title="文本同步历史记录" scrollable size="xl" hide-footer v-model="showHistoryTextModal">
 
+                <div :key="idx" class="card border-light"
+                     v-for="(syncDetail, idx) in reverseSyncDetails(historySyncCard.syncDetails)">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">{{ formatTime(syncDetail.timestamp) }}</h6>
+                        <span class="card-text">{{ syncDetail.content }}</span>
+
+                    </div>
+                </div>
+            </b-modal>
             <b-modal scrollable size="xl" hide-footer v-model="showPreviewModal">
                 <span>{{ previewDetail.name }}</span>
                 <b-button size="sm" style="float: right" variant="success" @click="copyImg"
@@ -281,6 +300,8 @@ export default {
             transInfo: {},
             enableTranslate: false,
             showCaptureModal: false,
+            showHistoryTextModal: false,
+            historySyncCard: {},
             capturePath: null,
             captureTag: '',
             openUrlModal: false,
@@ -292,7 +313,7 @@ export default {
         this.getLocalInfo()
         this.pingDevice()
 
-        // 10min 发起一次心跳，1min发起一次重试连接
+        // 10min 发起一次心跳，30S发起一次重试连接
         setInterval(() => {
             if (this.ws) {
                 this.ws.send(JSON.stringify({msgEvent: this.wsMsgType.ping}))
@@ -302,7 +323,7 @@ export default {
             if (!this.ws) {
                 this.pingDevice()
             }
-        }, 1000 * 60)
+        }, 1000 * 30)
     },
     watch: {
         syncText() {
@@ -321,8 +342,19 @@ export default {
         },
     },
     methods: {
+        reverseSyncDetails(syncDetails) {
+            if (syncDetails) {
+                return [...syncDetails].reverse()
+            }
+            return syncDetails
+        },
+        showHistoryTextModalEvent(syncCard) {
+            console.log(syncCard)
+            this.historySyncCard = syncCard
+            this.showHistoryTextModal = true
+        },
         copyText(domId) {
-            let clipboard = new ClipboardJS('#'+domId)
+            let clipboard = new ClipboardJS('#' + domId)
             clipboard.on('success', () => {
                 this.$bvToast.toast('复制成功', {
                     title: '提示',
@@ -496,6 +528,7 @@ export default {
             return `http://${window.location.hostname}:${this.listenPort}` + path
         },
         getLocalInfo: function () {
+            console.log('window listen port:', window.listenPort)
             this.$http.get(this.genUrl('/localInfo')).then(resp => {
                 console.log(resp.data)
                 this.shareUrl = resp.data.shareUrl
