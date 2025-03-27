@@ -9,7 +9,7 @@ function openUrl(req, res) {
     let groupId = req.body.groupId
     let devId = req.body.devId
     let url = req.body.url
-    let autoOpen = req.body.autoOpen
+    let autoOpen =  req.body.autoOpen === 'True'
     console.log(groupId, devId, url)
     global.SYNCWS.sendMsg(groupId, devId, {msgEvent: 'openUrl', url: url, autoOpen: autoOpen})
     res.send('success')

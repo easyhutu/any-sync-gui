@@ -100,48 +100,53 @@ app.whenReady().then(() => {
         })
     })
     win.webContents.session.on('will-download', (e, item) => {
-        const filePath = path.join(saveUrl, item.getFilename())
-        item.setSavePath(filePath)
-        //监听下载过程，计算并设置进度条进度
-        item.on('updated', (evt, state) => {
-            if ('progressing' === state) {
-                //此处  用接收到的字节数和总字节数求一个比例  就是进度百分比
-                let progressInt = 0
-                if (item.getReceivedBytes() && item.getTotalBytes()) {
-                    progressInt = 100 * (item.getReceivedBytes() / item.getTotalBytes())
-                }
-                // 把百分比发给渲染进程进行展示
-                win.webContents.send('updateProgressing', progressInt)
-                // mac 程序坞、windows 任务栏显示进度
-                win.setProgressBar(progressInt)
-            }
-        })
-        //监听下载结束事件
-        item.on('done', (e, state) => {
-            //如果窗口还在的话，去掉进度条
-            if (!win.isDestroyed()) {
-                win.setProgressBar(-1)
-            }
-            //下载被取消或中断了
-            if (state === 'interrupted') {
-                dialog.showErrorBox(
-                    '下载失败',
-                    `文件 ${item.getFilename()} 因为某些原因被中断下载`
-                )
-            }
-            // 下载成功后打开文件所在文件夹
-            if (state === 'completed') {
-                console.log('download completed')
-                dialog.showMessageBox(win, {message: "下载成功^_^"}).then(value => {
-                    if (sysCfg.electronCfg) {
-                        if (sysCfg.electronCfg.enableAutoOpenFolder) {
-                            shell.showItemInFolder(filePath)
-                        }
+        try {
+            const filePath = path.join(saveUrl, item.getFilename())
+            item.setSavePath(filePath)
+            //监听下载过程，计算并设置进度条进度
+            item.on('updated', (evt, state) => {
+                if ('progressing' === state) {
+                    //此处  用接收到的字节数和总字节数求一个比例  就是进度百分比
+                    let progressInt = 0
+                    if (item.getReceivedBytes() && item.getTotalBytes()) {
+                        progressInt = 100 * (item.getReceivedBytes() / item.getTotalBytes())
                     }
+                    // 把百分比发给渲染进程进行展示
+                    win.webContents.send('updateProgressing', progressInt)
+                    // mac 程序坞、windows 任务栏显示进度
+                    win.setProgressBar(progressInt)
+                }
+            })
+            //监听下载结束事件
+            item.on('done', (e, state) => {
+                //如果窗口还在的话，去掉进度条
+                if (!win.isDestroyed()) {
+                    win.setProgressBar(-1)
+                }
+                //下载被取消或中断了
+                if (state === 'interrupted') {
+                    dialog.showErrorBox(
+                        '下载失败',
+                        `文件 ${item.getFilename()} 因为某些原因被中断下载`
+                    )
+                }
+                // 下载成功后打开文件所在文件夹
+                if (state === 'completed') {
+                    console.log('download completed')
+                    dialog.showMessageBox(win, {message: "下载成功^_^"}).then(value => {
+                        if (sysCfg.electronCfg) {
+                            if (sysCfg.electronCfg.enableAutoOpenFolder) {
+                                shell.showItemInFolder(filePath)
+                            }
+                        }
 
-                })
-            }
-        })
+                    })
+                }
+            })
+        } catch (e) {
+            console.log('will download err:', e)
+        }
+
     })
 })
 

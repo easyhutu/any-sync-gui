@@ -244,11 +244,21 @@
             <b-modal title="直链调用" scrollable size="xl" hide-footer v-model="openUrlModal">
                 <div style="text-align: center" class="d-block text-center show-container">
                     <b-button variant="info" class="mt-3" @click="openUrlEvent">
-                        发起调用
+                        打开链接
+                    </b-button>
+                    &nbsp;
+                    <b-button
+                        :data-clipboard-text="openUrlParams"
+                        id="COpenUrl"
+                        variant="success"
+                        class="mt-3"
+                        @click="copyText('COpenUrl')">
+                        复制文本
                     </b-button>
                     <hr>
-                    <h5>请求参数</h5>
-                    <b-textarea max-rows="20" v-model="openUrlParams"></b-textarea>
+                    <h5>链接</h5>
+                    <b-textarea
+                        max-rows="20" v-model="openUrlParams"></b-textarea>
 
                 </div>
             </b-modal>
@@ -451,7 +461,7 @@ export default {
             })
         },
         openUrlEvent() {
-            window.open(this.openUrlParams)
+            window.open(this.openUrlParams, '_blank', 'noopener,noreferrer')
         },
         shareEventCapture() {
             this.showCaptureModal = false
@@ -579,7 +589,7 @@ export default {
                     case this.wsMsgType.openUrl: {
                         this.openUrlParams = msgObj.url
                         if (msgObj.autoOpen) {
-                            window.open(this.openUrlParams)
+                            this.openUrlEvent()
                         } else {
                             this.openUrlModal = true
                         }
