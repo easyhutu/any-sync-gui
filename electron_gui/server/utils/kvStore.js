@@ -25,7 +25,7 @@ class KvStore {
                 console.log('read cfg err:', err)
                 return
             }
-            this.val = JSON.parse(data.toString())
+            this.val = jsonParseIgnoreErr(data.toString())
             this.val[k] = v
             fs.writeFile(cfgFilePath, JSON.stringify(this.val), (err) => {
                 if (err) {
@@ -59,7 +59,7 @@ class KvStore {
                         console.log('read cfg err:', err)
                         return
                     }
-                    this.val = JSON.parse(data.toString())
+                    this.val = jsonParseIgnoreErr(data.toString())
                     console.log('load cfg', JSON.stringify(this.val))
                 })
             }
@@ -78,9 +78,19 @@ async function getWithFile(k) {
                 console.log('read cfg err:', err)
                 reject(err)
             }
-            resolve(JSON.parse(data.toString())[k])
+            resolve(jsonParseIgnoreErr(data.toString())[k])
         })
     }))
+}
+
+function jsonParseIgnoreErr(val) {
+    try {
+        return JSON.parse(val)
+    } catch (e) {
+        console.log('parse json err:', e)
+        return {}
+    }
+
 }
 
 module.exports = {
