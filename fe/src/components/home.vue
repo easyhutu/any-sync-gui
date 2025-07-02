@@ -248,17 +248,17 @@
                     </b-button>
                     &nbsp;
                     <b-button
-                        :data-clipboard-text="openUrlParams"
-                        id="COpenUrl"
-                        variant="success"
-                        class="mt-3"
-                        @click="copyText('COpenUrl')">
+                            :data-clipboard-text="openUrlParams"
+                            id="COpenUrl"
+                            variant="success"
+                            class="mt-3"
+                            @click="copyText('COpenUrl')">
                         复制文本
                     </b-button>
                     <hr>
                     <h5>链接</h5>
                     <b-textarea
-                        max-rows="20" v-model="openUrlParams"></b-textarea>
+                            max-rows="20" v-model="openUrlParams"></b-textarea>
 
                 </div>
             </b-modal>
@@ -316,12 +316,20 @@ export default {
             captureTag: '',
             openUrlModal: false,
             openUrlParams: '',
-            isMobile: navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
+            isMobile: navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i),
+            isIos: navigator.userAgent.match(/(iPhone|iPod|ios|iPadwOSBrowser)/i),
         }
     },
     mounted() {
         this.getLocalInfo()
+
+
         this.pingDevice()
+        if (this.isIos && !this.ws) {
+            setTimeout(() => {
+                this.initWsEvent()
+            }, 300)
+        }
 
         // 10min 发起一次心跳，30S发起一次重试连接
         setInterval(() => {
