@@ -34,7 +34,7 @@ function CreateMenuTemp(app, parentWin) {
                         console.log(settingURl)
                         settingWin.loadURL(settingURl)
 
-                        settingWin.webContents.openDevTools()
+                        // settingWin.webContents.openDevTools()
 
                         settingWin.on('close', () => {
                             parentWin.reload()
@@ -107,7 +107,7 @@ function CreateTrayMenuTemp(app, parentWin) {
                 console.log(settingURl)
                 settingWin.loadURL(settingURl)
 
-                settingWin.webContents.openDevTools()
+                // settingWin.webContents.openDevTools()
 
                 settingWin.on('close', () => {
                     parentWin.reload()
