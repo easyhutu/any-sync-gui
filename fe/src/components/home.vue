@@ -165,26 +165,23 @@
                             <span style="float: right; font-size: xx-small">{{ formatTime(syncCard.syncTime) }}</span>
                         </b-card-sub-title>
                         <b-card-text>
-                            <b-list-group style="margin-top: 10px">
-                                <b-list-group-item v-for="(syncDetail, didx) in syncCard.syncDetails" :key="didx">
-                                    <div style="float: left; width: 5%; margin-right: 5px">
-                                        <b-icon icon="image-fill"></b-icon>
-                                    </div>
-                                    <div class="file-show-link" style="float: left; width: 50%">
+                            <div class="file-list">
+                                <div v-for="(syncDetail, didx) in syncCard.syncDetails" :key="didx"
+                                     class="file-item">
+                                    <div class="file-item-name">
                                         <a v-if="dev.isMaster" href="javascript:void(0)"
                                            @click="clickDownloadEvent(genUrl('/'+syncDetail.fileHash))">
-                                            {{ syncDetail.show }}
+                                            <span class="file-item-idx">{{didx+1}}</span>{{ syncDetail.show }}
                                         </a>
                                         <a v-else download :href="genUrl('/'+syncDetail.fileHash)">
-                                            {{ syncDetail.show }}
+                                            <span class="file-item-idx">{{didx+1}}</span>{{ syncDetail.show }}
                                         </a>
                                     </div>
-
-
-                                    <div style="float: left; width: 10%">
+                                    <div class="file-item-actions">
+                                        <b-badge variant="light" pill>
+                                            <b-icon :icon="getFileIcon(syncDetail.fileExt)"></b-icon>
+                                        </b-badge>
                                         <b-badge variant="info" pill>{{ syncDetail.fileSize }}</b-badge>
-                                    </div>
-                                    <div style="float: right; text-align: right; width: 10%">
                                         <b-badge pill
                                                  @click="clickPreview(syncDetail.fileHash, syncDetail.fileExt, syncDetail.show)"
                                                  href="#"
@@ -192,8 +189,8 @@
                                             查看
                                         </b-badge>
                                     </div>
-                                </b-list-group-item>
-                            </b-list-group>
+                                </div>
+                            </div>
                         </b-card-text>
 
                     </b-card>
@@ -278,8 +275,8 @@ export default {
     },
     data() {
         return {
-            settingUrl: `http://${window.location.hostname}:8081/setting`,
-            listenPort: 8081,
+            settingUrl: `${window.location.origin}/setting`,
+            listenPort: window.location.port || 80,
             shareUrl: '',
             dev: {},
             devs: [],
@@ -287,7 +284,7 @@ export default {
             choiceDevShow: null,
             syncText: '',
             uploadOptions: {
-                target: `http://${window.location.hostname}:8081/upload`,
+                target: `${window.location.origin}/upload`,
                 testChunks: false,
                 chunkSize: 1024 * 1024 * 1025
             },
@@ -331,17 +328,17 @@ export default {
             }, 300)
         }
 
-        // 10min 发起一次心跳，30S发起一次重试连接
+        // 发起一次心跳，30S发起一次重试连接
         setInterval(() => {
             if (this.ws) {
                 this.ws.send(JSON.stringify({msgEvent: this.wsMsgType.ping}))
             }
-        }, 1000 * 60 * 10)
+        }, 1000 * 60)
         setInterval(() => {
             if (!this.ws) {
                 this.pingDevice()
             }
-        }, 1000 * 30)
+        }, 1000 * 3)
     },
     watch: {
         syncText() {
@@ -542,8 +539,41 @@ export default {
                     return 'laptop'
             }
         },
+        getFileIcon(ext) {
+            if (!ext) return 'file-earmark'
+            ext = ext.toLowerCase().replace('.', '')
+            const map = {
+                image: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'],
+                music: ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'],
+                film: ['mp4', 'avi', 'mov', 'mkv', 'wmv', 'flv', 'webm'],
+                code: ['js', 'ts', 'vue', 'jsx', 'tsx', 'html', 'css', 'json', 'py', 'java', 'go', 'c', 'cpp'],
+                word: ['doc', 'docx'],
+                spreadsheet: ['xls', 'xlsx', 'csv'],
+                slides: ['ppt', 'pptx'],
+                pdf: ['pdf'],
+                archive: ['zip', 'rar', '7z', 'tar', 'gz'],
+                text: ['txt', 'md', 'log']
+            }
+            for (const [icon, exts] of Object.entries(map)) {
+                if (exts.includes(ext)) {
+                    switch (icon) {
+                        case 'image': return 'file-earmark-image'
+                        case 'music': return 'file-earmark-music'
+                        case 'film': return 'file-earmark-play'
+                        case 'code': return 'file-earmark-code'
+                        case 'word': return 'file-earmark-word'
+                        case 'spreadsheet': return 'file-earmark-spreadsheet'
+                        case 'slides': return 'file-earmark-slides'
+                        case 'pdf': return 'file-earmark-pdf'
+                        case 'archive': return 'file-earmark-zip'
+                        case 'text': return 'file-earmark-text'
+                    }
+                }
+            }
+            return 'file-earmark'
+        },
         genUrl: function (path) {
-            return `http://${window.location.hostname}:${this.listenPort}` + path
+            return `${window.location.origin}` + path
         },
         getLocalInfo: function () {
             console.log('window listen port:', window.listenPort)
@@ -563,7 +593,7 @@ export default {
             })
         },
         initWsEvent: function () {
-            this.ws = new WebSocket(`ws://${window.location.hostname}:${this.listenPort}/ws/sync/${this.wsGroupId}`)
+            this.ws = new WebSocket(`ws://${window.location.host}/ws/sync/${this.wsGroupId}`)
             this.ws.onopen = () => {
                 console.log('ws连接状态：' + this.ws.readyState);
                 //连接成功 ping group
@@ -632,6 +662,63 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.file-list {
+    margin-top: 10px;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.file-item + .file-item {
+    border-top: 1px solid #eee;
+}
+
+.file-item-name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.file-item-name a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.file-item-name a:hover {
+    text-decoration: underline;
+}
+
+.file-item-idx {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    font-size: 11px;
+    border-radius: 4px;
+    background: #e9ecef;
+    color: #6c757d;
+    margin-right: 6px;
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+.file-item-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
 .show-container {

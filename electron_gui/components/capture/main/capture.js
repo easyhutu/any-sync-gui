@@ -188,17 +188,14 @@ function windowEdit(type) {
 
 
 // cutWindow
-async function cutWindow(IMwindow, captureCfg) {
+function cutWindow(IMwindow, captureCfg) {
     global.IMwindow = IMwindow;
-    await captureCfg
     console.log('captureCfg', captureCfg)
-    captureCfg.then(value => {
-        if (value.enableCapture){
-            cutKey = value.captureKey
-            console.log(`listen[${cutKey}]running capture server...`)
-            cutFun()
-        }
-    })
+    if (captureCfg && captureCfg.enableCapture) {
+        cutKey = captureCfg.captureKey
+        console.log(`listen[${cutKey}]running capture server...`)
+        cutFun()
+    }
 
     quitCutFun();
 

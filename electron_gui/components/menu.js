@@ -30,11 +30,11 @@ function CreateMenuTemp(app, parentWin) {
                         })
 
                         // 加载 index.html
-                        let settingURl = `file://${path.resolve(__dirname, '../dist/index.html#/setting')}`
+                        let settingURl = `http://localhost:${global.SrvListenPort}/index.html#/setting`
                         console.log(settingURl)
                         settingWin.loadURL(settingURl)
 
-                        // settingWin.webContents.openDevTools()
+                        settingWin.webContents.openDevTools()
 
                         settingWin.on('close', () => {
                             parentWin.reload()
@@ -103,11 +103,11 @@ function CreateTrayMenuTemp(app, parentWin) {
                 })
 
                 // 加载 index.html
-                let settingURl = `file://${path.resolve(__dirname, '../dist/index.html#/setting')}`
+                let settingURl = `http://localhost:${global.SrvListenPort}/index.html#/setting`
                 console.log(settingURl)
                 settingWin.loadURL(settingURl)
 
-                // settingWin.webContents.openDevTools()
+                settingWin.webContents.openDevTools()
 
                 settingWin.on('close', () => {
                     parentWin.reload()

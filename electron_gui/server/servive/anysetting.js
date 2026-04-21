@@ -10,6 +10,7 @@ function getSetting(req, res) {
 function setSetting(req, res) {
 
     let mode = req.body.mode
+    console.log('set setting:', req.body)
     if (mode === 'baiduCfg') {
         let baiduCfg = req.body.baiduCfg
         kvStore.setAndUpdate(baiduTrans.baiduCfgKey,
@@ -37,6 +38,18 @@ function setSetting(req, res) {
         kvStore.setAndUpdate('sysCfg', sysCfg)
         if (sysCfg.textHistoryMaxSize) {
             global.TextHistoryMaxSize = parseInt(sysCfg.textHistoryMaxSize)
+        }
+    }
+    if (mode === 'portCfg') {
+        let port = parseInt(req.body.port)
+        console.log(port)
+        if (port >= 1024 && port <= 65535) {
+            kvStore.setAndUpdate('sysCfg', {listenPort: port})
+            res.send('success')
+            return
+        } else {
+            res.status(400).send('端口范围需在 1024-65535 之间')
+            return
         }
     }
 

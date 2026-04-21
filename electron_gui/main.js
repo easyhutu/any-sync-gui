@@ -8,7 +8,7 @@ const {appSrv, MasterId, syncWsM, ipcRemoteFunc} = require('./server')
 const {getWithFile, kvStore} = require('./server/utils')
 const cutWindow = require('./components/capture/main/capture')
 
-appSrv.listen(8081) // 启动服务
+appSrv.listen(global.SrvListenPort) // 启动服务
 let captureCfg = getWithFile('captureCfg')
 
 
@@ -46,7 +46,7 @@ const createWindow = () => {
 
     Menu.setApplicationMenu(Menu.buildFromTemplate(CreateMenuTemp(app, win)))
     // 加载 index.html
-    win.loadURL(`http://localhost:8081?masterId=${MasterId}`)
+    win.loadURL(`http://localhost:${global.SrvListenPort}?masterId=${MasterId}`)
     // 打开开发工具
     // win.webContents.openDevTools()
 
@@ -82,6 +82,12 @@ app.whenReady().then(() => {
     ipcMain.on('saveSetting', (event, data) => {
         console.log('save setting:', data)
         sysCfg = data
+    })
+
+    ipcMain.on('relaunchApp', () => {
+        console.log('relaunch app...')
+        app.relaunch()
+        app.exit(0)
     })
 
     ipcRemoteFunc.registerFunc((url) => {

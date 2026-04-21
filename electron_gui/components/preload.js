@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-const validChannels = ['saveSetting',];
+const validChannels = ['saveSetting', 'relaunchApp'];
 contextBridge.exposeInMainWorld(
     'ipc', {
         send: (channel, data) => {

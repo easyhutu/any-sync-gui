@@ -105,6 +105,24 @@
 
                             </b-form-group>
 
+                            <b-form-group label-align="left" label-cols="4" label-cols-lg="5"
+                                          label="监听端口"
+                                          label-for="input-default">
+                                <b-input-group style="width: 220px; float: left">
+                                    <b-form-input v-model="listenPort" type="number"
+                                                  min="1024" max="65535"
+                                                  placeholder="默认8000"></b-form-input>
+                                    <b-input-group-append>
+                                        <b-button @click="savePort" size="sm" variant="outline-info">应用</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                                <b-icon id="tooltip-port" variant="info" icon="question-circle"
+                                        style="margin-left: 8px; margin-top: 8px"></b-icon>
+                                <b-tooltip target="tooltip-port" triggers="hover">
+                                    修改后将重启应用生效，范围 1024-65535
+                                </b-tooltip>
+                            </b-form-group>
+
                             <b-form-group label-align="left" label-cols="4" label-cols-lg="5" label="缓存"
                                           label-for="input-default">
                                 <b-button style="float: left" class="mr-n2 mb-n1" pill
@@ -152,7 +170,7 @@ export default {
                 baiduCfg: 'baiduCfg',
                 sysCfg: 'sysCfg'
             },
-            settingUrl: `http://127.0.0.1:8081/setting`,
+            settingUrl: `${window.location.origin}/setting`,
             baiduAppid: null,
             baiduSecret: null,
             enableBaiduTrans: false,
@@ -179,7 +197,8 @@ export default {
                 {text: '20', value: 20},
                 {text: '30', value: 30},
                 {text: '50', value: 50}
-            ]
+            ],
+            listenPort: null
         }
     },
     mounted() {
@@ -218,6 +237,7 @@ export default {
                 }
                 if (sysCfg) {
                     this.textHistoryMaxSize = sysCfg.textHistoryMaxSize
+                    this.listenPort = sysCfg.listenPort || this.sysInfo.listenPort
                 }
             })
         },
@@ -277,6 +297,50 @@ export default {
                 })
                 this.enableBaiduTrans = false
             }
+        },
+        savePort() {
+            let port = parseInt(this.listenPort)
+            if (!port || port < 1024 || port > 65535) {
+                this.$bvToast.toast('端口范围需在 1024-65535 之间', {
+                    title: '警告',
+                    variant: 'warning',
+                    solid: true,
+                    autoHideDelay: 3000,
+                })
+                return
+            }
+            if (port === parseInt(this.sysInfo.listenPort)) {
+                this.$bvToast.toast('端口未变更', {
+                    title: '提示',
+                    variant: 'info',
+                    solid: true,
+                    autoHideDelay: 2000,
+                })
+                return
+            }
+            this.$http.post(this.settingUrl, {mode: 'portCfg', port: port}).then(() => {
+                this.$bvToast.toast(`端口将变更为 ${port}，应用即将重启...`, {
+                    title: '提示',
+                    variant: 'success',
+                    solid: true,
+                    autoHideDelay: 3000,
+                })
+                setTimeout(() => {
+                    try {
+                        window.ipc.send('relaunchApp')
+                    } catch (e) {
+                        // 非 Electron 环境，提示用户手动刷新
+                        window.location.href = `http://${window.location.hostname}:${port}`
+                    }
+                }, 1500)
+            }).catch(() => {
+                this.$bvToast.toast('端口保存失败，请检查端口是否被占用', {
+                    title: '错误',
+                    variant: 'danger',
+                    solid: true,
+                    autoHideDelay: 3000,
+                })
+            })
         }
     },
     watch: {}

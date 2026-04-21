@@ -7,7 +7,12 @@ const isDebug = process.env.NODE_ENV === 'debug'
 
 const MasterId = `master-${Date.now()}`
 
-global.SrvListenPort = 8081
+const DEFAULT_PORT = 8000
+let cfgPort = kvStore.get('sysCfg') && kvStore.get('sysCfg').listenPort
+global.SrvListenPort = cfgPort ? parseInt(cfgPort) : DEFAULT_PORT
+if (!cfgPort){
+    kvStore.setAndUpdate('sysCfg', {listenPort: global.SrvListenPort})
+}
 global.ResourceSize = 0
 if (kvStore.get('sysCfg') && kvStore.get('sysCfg').textHistoryMaxSize) {
     global.TextHistoryMaxSize = kvStore.get('sysCfg').textHistoryMaxSize
